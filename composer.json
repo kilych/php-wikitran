@@ -1,0 +1,48 @@
+{
+  "name": "wikitranslator/wikitranslator",
+  "type": "library",
+  "description": "Translate terms using Wikipedia",
+  "keywords": [
+    "wikitranslator",
+    "wikipedia translator"
+  ],
+  "homepage": "https://github.com/kilych/php-wikitran",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "kilych",
+      "email": "kilych@zoho.com",
+      "homepage": "https://github.com/kilych",
+      "role": "Developer"
+    }
+  ],
+  "bin": ["bin/wikitran-migrate-cache"],
+  "require": {
+    "php" : "^7.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.0||~5.0||~6.0",
+    "psy/psysh": "@stable",
+    "squizlabs/php_codesniffer": "^2.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "wikitranslator\\wikitranslator\\": "src"
+    },
+    "files": ["src/functions.php"]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "wikitranslator\\wikitranslator\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": "phpunit --colors=always --bootstrap src/functions.php",
+    "check-style": "phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src tests",
+    "fix-style": "phpcbf -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src tests",
+    "migrate-cache": "wikitran-migrate-cache"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}

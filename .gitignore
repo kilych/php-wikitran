@@ -1,0 +1,5 @@
+build
+vendor
+
+# project specific
+data
