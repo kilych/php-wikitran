@@ -22,18 +22,35 @@ class Translator
             $this->db = new DbTranslator();
         }
 
-        if (!$this->db->isConnectionSet()) {
+        $this->setMethod($method);
+    }
+
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    public function setMethod($method)
+    {
+        if (! $this->db->isConnectionSet()) {
             $this->method = 'web';
-        } elseif (in_array($method, self::METHODS)) {
+        } elseif ($this->isMethod($method)) {
             $this->method = $method;
         } else {
             $this->method = 'mixed';
         }
     }
 
-    public function getMethod()
+    public function isMethod($method = null)
     {
-        return $this->method;
+        $method = ($method) ? $method : $this->method;
+        return in_array($method, self::METHODS);
+    }
+
+    public function isDbMethod($method = null)
+    {
+        $method = ($method) ? $method : $this->method;
+        return in_array($method, self::DB_METHODS);
     }
 
     /**
@@ -50,14 +67,14 @@ class Translator
     public function translate(string $source, string $dest, string $query)
     {
         $queries = self::varyQuery(self::normalize($query));
-        if (in_array($this->method, self::DB_METHODS)
+        if ($this->isDbMethod()
             && false !== $translation = $this->db->translate($source, $dest, $queries)) {
             return $translation;
         } elseif (false !== $from_web = load($source, $queries)) {
             list($succesful_query, $page) = $from_web;
             $term = new Term($source, $succesful_query, $page);
 
-            if (in_array($this->method, self::DB_METHODS)) {
+            if ($this->isDbMethod()) {
                 $saved = $this->db->save($term);
             }
 
