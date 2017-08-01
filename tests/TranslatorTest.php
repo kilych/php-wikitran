@@ -14,6 +14,7 @@ class TranslatorTest extends TestCase
     {
         $translated = 'How the Steel Was Tempered';
         $tr = new Translator();
+        $tr->setMethod('web');
 
         $this->assertEquals('web', $tr->getMethod());
         $this->assertEquals($translated, $tr->translate('ru', 'en', 'как закалялась сталь'));

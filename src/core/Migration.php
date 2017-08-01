@@ -9,13 +9,15 @@ class Migration extends Db
 {
     public static $server;
 
-    public static function run($pdo = false, $server = 'sqlite')
+    public static function run($pdo = false, $server = 'sqlite', $clear = false)
     {
         error_log(__METHOD__);
         self::$server = $server;
-        if ($pdo instanceof \PDO || $pdo = self::makeConnection()) {
+        if ($pdo instanceof \PDO || $pdo = self::makeConnection(true)) {
             try {
-                self::clear($pdo);
+                if ($clear) {
+                    self::clear($pdo);
+                }
                 self::createTables($pdo);
                 self::addSource($pdo);
                 self::addLangs($pdo);
@@ -23,7 +25,7 @@ class Migration extends Db
                 error_log(__METHOD__ . ' ' . $e->getMessage());
             }
         } else {
-            error_log(__METHOD__ . 'No Db connection');
+            error_log(__METHOD__ . ' No Db connection');
         }
     }
 
@@ -39,8 +41,8 @@ class Migration extends Db
     public static function createTables(\PDO $pdo)
     {
         // $server = self::$server;
-        $path = dirname(__DIR__, 2) . "/data/schema_{self::$server}.sql";
-        error_log(__METHOD__ . " Schema from file: $path");
+        $path = dirname(__DIR__, 2) . '/config/schema_' . self::$server . '.sql';
+        error_log(__METHOD__ . " Schema found at $path");
         if (file_exists($path)) {
             $sql = file_get_contents($path);
         } else {
