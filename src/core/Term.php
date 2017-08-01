@@ -2,7 +2,7 @@
 
 namespace Wikitran\core;
 
-use function Wikitran\lib\generate_cuts;
+use function Wikitran\lib\generate_cuts as generate;
 
 class Term
 {
@@ -30,7 +30,7 @@ class Term
 function get_translations(string $page): array
 {
     $translations = [];
-    $urls = generate_cuts($page, 'p-lang-label', 'after-portlet-lang', 'http', '"');
+    $urls = generate($page, 'p-lang-label', 'after-portlet-lang', 'http', '"');
     foreach ($urls as $url) {
         list($lang, $translation) = handle_wikiurl($url);
         $translations[$lang] = unsharp_translation($translation);
@@ -41,7 +41,7 @@ function get_translations(string $page): array
 function get_links(string $source, string $page): array
 {
     $links_to = [];
-    $urls = generate_cuts($page, 'mw-content-text', 'printfooter', 'href="', '"');
+    $urls = generate($page, 'mw-content-text', 'printfooter', 'href="', '"');
     foreach ($urls as $url) {
         list($lang, $term_name) = handle_wikiurl($url);
         if (!$lang) {
