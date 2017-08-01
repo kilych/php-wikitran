@@ -1,8 +1,8 @@
 <?php
 
-namespace wikitranslator\wikitranslator\core;
+namespace Wikitran\core;
 
-use function wikitranslator\wikitranslator\lib\generate_cuts;
+use function Wikitran\lib\generate_cuts;
 
 class Term {
     public $translations;

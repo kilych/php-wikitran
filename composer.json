@@ -1,10 +1,10 @@
 {
-  "name": "wikitranslator/wikitranslator",
+  "name": "wikitran/wikitran",
   "type": "library",
   "description": "Translate terms using Wikipedia",
   "keywords": [
-    "wikitranslator",
-    "wikipedia translator"
+    "translator",
+    "wikipedia"
   ],
   "homepage": "https://github.com/kilych/php-wikitran",
   "license": "MIT",
@@ -27,13 +27,13 @@
   },
   "autoload": {
     "psr-4": {
-      "wikitranslator\\wikitranslator\\": "src"
+      "Wikitran\\": "src"
     },
     "files": ["src/functions.php"]
   },
   "autoload-dev": {
     "psr-4": {
-      "wikitranslator\\wikitranslator\\": "tests"
+      "Wikitran\\": "tests"
     }
   },
   "scripts": {

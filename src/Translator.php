@@ -1,10 +1,10 @@
 <?php
 
-namespace wikitranslator\wikitranslator;
+namespace Wikitran;
 
-use wikitranslator\wikitranslator\core\DbTranslator;
-use function wikitranslator\wikitranslator\core\load_page as load;
-use wikitranslator\wikitranslator\core\Term;
+use Wikitran\core\DbTranslator;
+use function Wikitran\core\load_page as load;
+use Wikitran\core\Term;
 
 class Translator {
     public const METHODS = ['web', 'db', 'mixed'];

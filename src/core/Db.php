@@ -1,6 +1,6 @@
 <?php
 
-namespace wikitranslator\wikitranslator\core;
+namespace Wikitran\core;
 
 class Db {
     protected static function getPathToDb() {

@@ -1,9 +1,9 @@
 <?php
 
-namespace wikitranslator\wikitranslator\core;
+namespace Wikitran\core;
 
-use wikitranslator\wikitranslator\core\Db;
-use wikitranslator\wikitranslator\Translator;
+use Wikitran\core\Db;
+use Wikitran\Translator;
 
 class Migration extends Db {
     public static $server;

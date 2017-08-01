@@ -1,6 +1,6 @@
 <?php
 
-namespace wikitranslator\wikitranslator\lib;
+namespace Wikitran\lib;
 
 function generate_cuts(string $init, string $begin, string $end, string $start, string $stop = '') {
     if (false !== $cut = cut_string($init, $begin, $end)) {

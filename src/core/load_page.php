@@ -1,6 +1,6 @@
 <?php
 
-namespace wikitranslator\wikitranslator\core;
+namespace Wikitran\core;
 
 function load_page(string $lang, array $queries) {
     foreach($queries as $try) {

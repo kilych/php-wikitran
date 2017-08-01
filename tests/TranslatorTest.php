@@ -1,9 +1,9 @@
 <?php
 
-namespace wikitranslator\wikitranslator;
+namespace Wikitran;
 
 use PHPUnit\Framework\TestCase;
-use wikitranslator\wikitranslator\Translator;
+use Wikitran\Translator;
 
 class TranslatorTest extends TestCase {
     /**

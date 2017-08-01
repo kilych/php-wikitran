@@ -1,8 +1,8 @@
 <?php
 
-namespace wikitranslator\wikitranslator\core;
+namespace Wikitran\core;
 
-use wikitranslator\wikitranslator\core\Db;
+use Wikitran\core\Db;
 
 class DbTranslator extends Db {
     protected $pdo;              // \PDO object or false
