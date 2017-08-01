@@ -5,8 +5,10 @@ namespace Wikitran;
 use PHPUnit\Framework\TestCase;
 use function Wikitran\lib\generate_cuts as generate;
 
-class GenerateCutsTest extends TestCase {
-    public function testGenerateCuts() {
+class GenerateCutsTest extends TestCase
+{
+    public function testGenerateCuts()
+    {
         $s = 'abcbeginabmiddlecabcendabc';
         $g1 = generate($s, 'begin', 'end', 'a', 'c');
         $g2 = generate($s, 'begin', 'end', 'abc', 'a');
@@ -18,8 +20,9 @@ class GenerateCutsTest extends TestCase {
     }
 }
 
-function equals_array_or_generator($expected, $given) {
-    foreach($given as $item) {
+function equals_array_or_generator($expected, $given)
+{
+    foreach ($given as $item) {
         if (empty($expected) || ($item !== array_shift($expected))) {
             return false;
         }

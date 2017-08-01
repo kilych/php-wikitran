@@ -5,10 +5,12 @@ namespace Wikitran\core;
 use Wikitran\core\Db;
 use Wikitran\Translator;
 
-class Migration extends Db {
+class Migration extends Db
+{
     public static $server;
 
-    public static function run($pdo = false, $server = 'sqlite') {
+    public static function run($pdo = false, $server = 'sqlite')
+    {
         error_log(__METHOD__);
         self::$server = $server;
         if ($pdo instanceof \PDO || $pdo = self::makeConnection()) {
@@ -20,10 +22,13 @@ class Migration extends Db {
             } catch (\PDOException $e) {
                 error_log(__METHOD__ . ' ' . $e->getMessage());
             }
-        } else error_log(__METHOD__ . 'No Db connection');
+        } else {
+            error_log(__METHOD__ . 'No Db connection');
+        }
     }
 
-    public static function clear(\PDO $pdo) {
+    public static function clear(\PDO $pdo)
+    {
         error_log(__METHOD__);
         $tables = ['term_relation', 'translation', 'term', 'term_source', 'lang_name', 'lang'];
         foreach ($tables as $table) {
@@ -31,7 +36,8 @@ class Migration extends Db {
         }
     }
 
-    public static function createTables(\PDO $pdo) {
+    public static function createTables(\PDO $pdo)
+    {
         // $server = self::$server;
         $path = dirname(__DIR__, 2) . "/data/schema_{self::$server}.sql";
         error_log(__METHOD__ . " Schema from file: $path");
@@ -43,14 +49,16 @@ class Migration extends Db {
         $pdo->exec($sql);
     }
 
-    public static function addSource(\PDO $pdo) {
+    public static function addSource(\PDO $pdo)
+    {
         error_log(__METHOD__);
         $sql = 'INSERT INTO term_source (source_id, source) VALUES (1, \'Wikipedia\');';
         $rows = $pdo->exec($sql);
         return $rows;
     }
 
-    public static function addLangs(\PDO $pdo) {
+    public static function addLangs(\PDO $pdo)
+    {
         error_log(__METHOD__);
 
         $sql1 = 'INSERT INTO lang (lang_code) VALUES (?);';

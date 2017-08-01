@@ -5,11 +5,13 @@ namespace Wikitran;
 use PHPUnit\Framework\TestCase;
 use Wikitran\Translator;
 
-class TranslatorTest extends TestCase {
+class TranslatorTest extends TestCase
+{
     /**
      * Test translate
      */
-    public function testTranslate() {
+    public function testTranslate()
+    {
         $translated = 'How the Steel Was Tempered';
         $tr = new Translator();
 

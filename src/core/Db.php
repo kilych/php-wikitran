@@ -2,12 +2,15 @@
 
 namespace Wikitran\core;
 
-class Db {
-    protected static function getPathToDb() {
+class Db
+{
+    protected static function getPathToDb()
+    {
         return dirname(__DIR__, 2) . '/data/cache.sqlite';
     }
 
-    protected static function makeConnection() {
+    protected static function makeConnection()
+    {
         $path = self::getPathToDb();
         if (file_exists($path)) {
             error_log(__METHOD__ . " Db file found at $path");
