@@ -7,12 +7,13 @@ use Wikitran\Translator;
 
 class Migration extends Db
 {
+    const SERVERS = ['sqlite', 'mysql'];
     public static $server;
 
     public static function run($pdo = false, $server = 'sqlite', $clear = false)
     {
         error_log(__METHOD__);
-        self::$server = $server;
+        self::$server = (in_array($server, self::SERVERS)) ? $server : 'sqlite';
         if ($pdo instanceof \PDO || $pdo = self::connectBuiltIn(true)) {
             try {
                 if ($clear) {
@@ -40,15 +41,15 @@ class Migration extends Db
 
     public static function createTables(\PDO $pdo)
     {
-        // $server = self::$server;
-        $path = dirname(__DIR__, 2) . '/config/schema_' . self::$server . '.sql';
-        error_log(__METHOD__ . " Schema found at $path");
+        $server = self::$server;
+        $path = dirname(__DIR__, 2) . "/config/schema_$server.sql";
         if (file_exists($path)) {
+            error_log(__METHOD__ . " Schema found at $path");
             $sql = file_get_contents($path);
+            $pdo->exec($sql);
         } else {
             throw new \Exception("$path doesn't exist");
         }
-        $pdo->exec($sql);
     }
 
     public static function addSource(\PDO $pdo)
@@ -63,14 +64,14 @@ class Migration extends Db
     {
         error_log(__METHOD__);
 
-        $sql1 = 'INSERT INTO lang (lang_code) VALUES (?);';
-        $sql2 = ' INSERT INTO lang_name (lang_code, name, name_lang)'
+        $sqlLang = 'INSERT INTO lang (lang_code) VALUES (?);';
+        $sqlLangName = ' INSERT INTO lang_name (lang_code, name, name_lang)'
               . ' VALUES (?, ?, \'en\');';
         $rows = 0;
 
 
-        $st1 = $pdo->prepare($sql1);
-        $st2 = $pdo->prepare($sql2);
+        $st1 = $pdo->prepare($sqlLang);
+        $st2 = $pdo->prepare($sqlLangName);
 
         foreach (Translator::getLangs() as $code => $name) {
             $st1->execute([$code]);
