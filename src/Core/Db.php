@@ -4,29 +4,27 @@ namespace Wikitran\Core;
 
 class Db
 {
-    protected static function getCacheDirPath()
+    protected static function getBuiltInDirname()
     {
         return dirname(__DIR__, 2) . '/data';
     }
 
-    protected static function getCacheFilePath()
+    protected static function getBuiltInBasename()
     {
-        return self::getCacheDirPath() . '/cache.sqlite';
+        return '/cache.sqlite';
     }
 
     public static function connectBuiltIn($createFile = false)
     {
-        $dir = self::getCacheDirPath();
-        $file = self::getCacheFilePath();
-        if (file_exists($file)) {
-            error_log(__METHOD__ . " Db file found at $file");
-        } elseif ($createFile && (is_dir($dir) || mkdir($dir)) && touch($file)) {
-            error_log(__METHOD__ . " Db file created at $file");
-        } else {
-            error_log(__METHOD__ . " Db file not found and can not be created at $file");
-            return false;
+        error_log(__METHOD__);
+        $dir = self::getBuiltInDirname();
+        $file = $dir . self::getBuiltInBasename();
+        if (file_exists($file) || ($createFile && self::createDbFile($dir))) {
+            error_log("Db file: $file");
+            return self::connectSQLite($file);
         }
-        return self::connectSQLite($file);
+        error_log("Db file not found and can not be created at $file");
+        return false;
     }
 
     public static function connectSQLite($file)
@@ -58,4 +56,15 @@ class Db
             return false;
         }
     }
+
+    public static function createDbFile($dir)
+    {
+        error_log(__METHOD__);
+        $file = $dir . self::getBuiltInBasename();
+        if ((is_dir($dir) || mkdir($dir)) && touch($file)) {
+            return $file;
+        } else {
+            return false;
+        }
+}
 }
