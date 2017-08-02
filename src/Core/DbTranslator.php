@@ -13,13 +13,13 @@ class DbTranslator extends Db
         if ($pdo instanceof \PDO) {
             $this->pdo = $pdo;
         } else {
-            $this->pdo = self::makeConnection();
+            $this->pdo = self::connectBuiltIn();
         }
     }
 
     public function isConnectionSet()
     {
-        return $this->pdo !== false;
+        return $this->pdo instanceof \PDO;
     }
 
     public function translate(string $source, string $dest, array $queries)

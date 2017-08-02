@@ -14,25 +14,47 @@ class Db
         return self::getCacheDirPath() . '/cache.sqlite';
     }
 
-    protected static function makeConnection($createFile = false)
+    protected static function connectBuiltIn($createFile = false)
     {
-        $dirpath = self::getCacheDirPath();
-        $filepath = self::getCacheFilePath();
-        if (file_exists($filepath)) {
-            error_log(__METHOD__ . " Db file found at $filepath");
-        } elseif ($createFile && (is_dir($dirpath) || mkdir($dirpath)) && touch($filepath)) {
-            error_log(__METHOD__ . " Db file created at $filepath");
+        $dir = self::getCacheDirPath();
+        $file = self::getCacheFilePath();
+        if (file_exists($file)) {
+            error_log(__METHOD__ . " Db file found at $file");
+        } elseif ($createFile && (is_dir($dir) || mkdir($dir)) && touch($file)) {
+            error_log(__METHOD__ . " Db file created at $file");
         } else {
-            error_log(__METHOD__ . " Db file not found and can not be created at $filepath");
+            error_log(__METHOD__ . " Db file not found and can not be created at $file");
             return false;
         }
+        return self::connectSQLite($file);
+    }
+
+    protected static function connectSQLite($file)
+    {
         try {
-            $pdo = new \PDO("sqlite:$filepath");
+            $pdo = new \PDO("sqlite:$file");
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $pdo->exec('PRAGMA foreign_keys = ON;');
             return $pdo;
-        } catch (\PDOException $e) {
-            error_log(__METHOD__ . $e->getMessage());
+        } catch (\Exception $e) {
+            error_log(__METHOD__ . ' ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    protected static function connectMySQL($host, $db, $user, $password, $port = '', $charset = 'utf8')
+    {
+        try {
+            $pdo = new \PDO(
+                "mysql:host=$host;port=$port;dbname=$db;charset=$charset",
+                $user,
+                $password,
+                [\PDO::ATTR_EMULATE_PREPARES => false, // Really need ???
+                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
+            );
+            return $pdo;
+        } catch (\Exception $e) {
+            error_log(__METHOD__ . ' ' . $e->getMessage());
             return false;
         }
     }

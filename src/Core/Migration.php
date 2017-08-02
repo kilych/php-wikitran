@@ -13,7 +13,7 @@ class Migration extends Db
     {
         error_log(__METHOD__);
         self::$server = $server;
-        if ($pdo instanceof \PDO || $pdo = self::makeConnection(true)) {
+        if ($pdo instanceof \PDO || $pdo = self::connectBuiltIn(true)) {
             try {
                 if ($clear) {
                     self::clear($pdo);
