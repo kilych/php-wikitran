@@ -10,15 +10,12 @@ class Migration extends Db
     const SERVERS = ['sqlite', 'mysql'];
     public static $server;
 
-    public static function run($pdo = false, $server = 'sqlite', $clear = false)
+    public static function run($pdo = false, $server = 'sqlite')
     {
         error_log(__METHOD__);
         self::$server = (in_array($server, self::SERVERS)) ? $server : 'sqlite';
         if ($pdo instanceof \PDO || $pdo = self::connectBuiltIn(true)) {
             try {
-                if ($clear) {
-                    self::clear($pdo);
-                }
                 self::createTables($pdo);
                 self::addSource($pdo);
                 self::addLangs($pdo);
@@ -34,8 +31,12 @@ class Migration extends Db
     {
         error_log(__METHOD__);
         $tables = ['term_relation', 'translation', 'term', 'term_source', 'lang_name', 'lang'];
-        foreach ($tables as $table) {
-            $pdo->exec("DROP TABLE IF EXISTS $table;");
+        try {
+            foreach ($tables as $table) {
+                $pdo->exec("DROP TABLE IF EXISTS $table;");
+            }
+        } catch (\Exception $e) {
+            error_log(__METHOD__ . ' ' . $e->getMessage());
         }
     }
 
@@ -66,7 +67,7 @@ class Migration extends Db
 
         $sqlLang = 'INSERT INTO lang (lang_code) VALUES (?);';
         $sqlLangName = ' INSERT INTO lang_name (lang_code, name, name_lang)'
-              . ' VALUES (?, ?, \'en\');';
+                     . ' VALUES (?, ?, \'en\');';
         $rows = 0;
 
 
