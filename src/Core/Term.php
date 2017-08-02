@@ -1,8 +1,8 @@
 <?php
 
-namespace Wikitran\core;
+namespace Wikitran\Core;
 
-use function Wikitran\lib\generate_cuts as generate;
+use function Wikitran\Lib\generate_cuts as generate;
 
 class Term
 {

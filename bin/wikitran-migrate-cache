@@ -2,7 +2,7 @@
 
 <?php
 
-use Wikitran\core\Migration;
+use Wikitran\Core\Migration;
 
 $autoloadExplicit = __DIR__ . '/../vendor/autoload.php';
 $autoloadDependency = __DIR__ . '/../../../autoload.php';

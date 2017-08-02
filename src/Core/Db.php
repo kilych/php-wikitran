@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikitran\core;
+namespace Wikitran\Core;
 
 class Db
 {

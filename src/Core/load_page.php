@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikitran\core;
+namespace Wikitran\Core;
 
 function load_page(string $lang, array $queries)
 {

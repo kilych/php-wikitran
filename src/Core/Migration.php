@@ -1,8 +1,8 @@
 <?php
 
-namespace Wikitran\core;
+namespace Wikitran\Core;
 
-use Wikitran\core\Db;
+use Wikitran\Core\Db;
 use Wikitran\Translator;
 
 class Migration extends Db

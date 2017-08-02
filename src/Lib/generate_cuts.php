@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikitran\lib;
+namespace Wikitran\Lib;
 
 function generate_cuts(string $init, string $begin, string $end, string $start, string $stop = '')
 {

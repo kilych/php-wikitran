@@ -3,7 +3,7 @@
 namespace Wikitran;
 
 use PHPUnit\Framework\TestCase;
-use function Wikitran\lib\generate_cuts as generate;
+use function Wikitran\Lib\generate_cuts as generate;
 
 class GenerateCutsTest extends TestCase
 {

@@ -2,9 +2,9 @@
 
 namespace Wikitran;
 
-use Wikitran\core\DbTranslator;
-use function Wikitran\core\load_page as load;
-use Wikitran\core\Term;
+use Wikitran\Core\DbTranslator;
+use function Wikitran\Core\load_page as load;
+use Wikitran\Core\Term;
 
 class Translator
 {
