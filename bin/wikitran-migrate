@@ -15,4 +15,8 @@ if (file_exists($autoloadExplicit)) {
     exit('Autoload script not found.');
 }
 
-Migration::run();
+if ($pdo = Migration::connectBuiltIn(true)) {
+    Migration::run($pdo);
+} else {
+    die('Db connection is not set. Nothing to do.');
+}

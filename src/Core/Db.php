@@ -14,7 +14,7 @@ class Db
         return self::getCacheDirPath() . '/cache.sqlite';
     }
 
-    protected static function connectBuiltIn($createFile = false)
+    public static function connectBuiltIn($createFile = false)
     {
         $dir = self::getCacheDirPath();
         $file = self::getCacheFilePath();
@@ -29,7 +29,7 @@ class Db
         return self::connectSQLite($file);
     }
 
-    protected static function connectSQLite($file)
+    public static function connectSQLite($file)
     {
         try {
             $pdo = new \PDO("sqlite:$file");
@@ -42,7 +42,7 @@ class Db
         }
     }
 
-    protected static function connectMySQL($host, $db, $user, $password, $port = '', $charset = 'utf8')
+    public static function connectMySQL($host, $db, $user, $password, $port = '', $charset = 'utf8')
     {
         try {
             $pdo = new \PDO(

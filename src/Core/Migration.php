@@ -10,20 +10,16 @@ class Migration extends Db
     const SERVERS = ['sqlite', 'mysql'];
     public static $server;
 
-    public static function run($pdo = false, $server = 'sqlite')
+    public static function run(\PDO $pdo, $server = 'sqlite')
     {
         error_log(__METHOD__);
         self::$server = (in_array($server, self::SERVERS)) ? $server : 'sqlite';
-        if ($pdo instanceof \PDO || $pdo = self::connectBuiltIn(true)) {
-            try {
-                self::createTables($pdo);
-                self::addSource($pdo);
-                self::addLangs($pdo);
-            } catch (\PDOException $e) {
-                error_log(__METHOD__ . ' ' . $e->getMessage());
-            }
-        } else {
-            error_log(__METHOD__ . ' No Db connection');
+        try {
+            self::createTables($pdo);
+            self::addSource($pdo);
+            self::addLangs($pdo);
+        } catch (\PDOException $e) {
+            error_log($e->getMessage());
         }
     }
 
@@ -36,11 +32,11 @@ class Migration extends Db
                 $pdo->exec("DROP TABLE IF EXISTS $table;");
             }
         } catch (\Exception $e) {
-            error_log(__METHOD__ . ' ' . $e->getMessage());
+            error_log($e->getMessage());
         }
     }
 
-    public static function createTables(\PDO $pdo)
+    protected static function createTables(\PDO $pdo)
     {
         $server = self::$server;
         $path = dirname(__DIR__, 2) . "/config/schema_$server.sql";
@@ -53,7 +49,7 @@ class Migration extends Db
         }
     }
 
-    public static function addSource(\PDO $pdo)
+    protected static function addSource(\PDO $pdo)
     {
         error_log(__METHOD__);
         $sql = 'INSERT INTO term_source (source_id, source) VALUES (1, \'Wikipedia\');';
@@ -61,7 +57,7 @@ class Migration extends Db
         return $rows;
     }
 
-    public static function addLangs(\PDO $pdo)
+    protected static function addLangs(\PDO $pdo)
     {
         error_log(__METHOD__);
 
@@ -70,14 +66,13 @@ class Migration extends Db
                      . ' VALUES (?, ?, \'en\');';
         $rows = 0;
 
-
-        $st1 = $pdo->prepare($sqlLang);
-        $st2 = $pdo->prepare($sqlLangName);
+        $stLang = $pdo->prepare($sqlLang);
+        $stLangName = $pdo->prepare($sqlLangName);
 
         foreach (Translator::getLangs() as $code => $name) {
-            $st1->execute([$code]);
-            $st2->execute([$code, $name]);
-            $rows += $st1->rowCount() + $st2->rowCount();
+            $stLang->execute([$code]);
+            $stLangName->execute([$code, $name]);
+            $rows += $stLang->rowCount() + $stLangName->rowCount();
         }
 
         return $rows;
