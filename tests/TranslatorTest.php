@@ -14,14 +14,6 @@ class TranslatorTest extends TestCase
     public function testTranslate()
     {
         $translated = 'How the Steel Was Tempered';
-        $tr = new Translator();
-
-        $this->assertEquals('mixed', $tr->getMethod());
-        $this->assertEquals($translated, $tr->translate('ru', 'en', 'как закалялась сталь'));
-
-        $tr->setMethod('db');
-        $this->assertEquals('db', $tr->getMethod());
-        $this->assertEquals($translated, $tr->translate('ru', 'en', 'как закалялась сталь'));
 
         $dbpath = Migration::createDbFile(__DIR__ . '/data');
         $pdo = Migration::connectSQLite($dbpath);
