@@ -66,5 +66,5 @@ class Db
         } else {
             return false;
         }
-}
+    }
 }
