@@ -16,7 +16,7 @@
       "role": "Developer"
     }
   ],
-  "bin": ["bin/wikitran-migrate-cache"],
+  "bin": ["bin/wikitran-migrate"],
   "require": {
     "php" : "^7.0"
   },
@@ -40,7 +40,7 @@
     "test": "phpunit --colors=always --bootstrap src/functions.php",
     "check-style": "phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src tests",
     "fix-style": "phpcbf -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src tests",
-    "migrate-cache": "wikitran-migrate-cache"
+    "migrate": "wikitran-migrate"
   },
   "config": {
     "sort-packages": true
