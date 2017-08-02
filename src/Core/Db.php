@@ -20,7 +20,6 @@ class Db
         $dir = self::getBuiltInDirname();
         $file = $dir . self::getBuiltInBasename();
         if (file_exists($file) || ($createFile && self::createDbFile($dir))) {
-            error_log("Db file: $file");
             return self::connectSQLite($file);
         }
         error_log("Db file not found and can not be created at $file");
@@ -29,10 +28,12 @@ class Db
 
     public static function connectSQLite($file)
     {
+        error_log(__METHOD__);
         try {
             $pdo = new \PDO("sqlite:$file");
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $pdo->exec('PRAGMA foreign_keys = ON;');
+            error_log("Db file: $file");
             return $pdo;
         } catch (\Exception $e) {
             error_log(__METHOD__ . ' ' . $e->getMessage());
