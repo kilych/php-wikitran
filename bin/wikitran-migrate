@@ -7,9 +7,9 @@ use Wikitran\Core\Migration;
 $autoloadExplicit = __DIR__ . '/../vendor/autoload.php';
 $autoloadDependency = __DIR__ . '/../../../autoload.php';
 
-if (file_exists($autoloadExplicit)) {
+if (is_file($autoloadExplicit)) {
     require $autoloadExplicit;
-} elseif (file_exists($autoloadDependency)) {
+} elseif (is_file($autoloadDependency)) {
     require $autoloadDependency;
 } else {
     exit('Autoload script not found.');

@@ -104,7 +104,7 @@ class Translator
 
         if (count(self::$langs) > 0) {
             return self::$langs;
-        } elseif (file_exists($path)) {
+        } elseif (is_file($path)) {
             require_once $path;
             self::$langs = LANGS;
             return self::$langs;

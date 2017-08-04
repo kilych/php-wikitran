@@ -15,7 +15,7 @@ class Db
     {
         $dir = self::getBuiltInDirname();
         $file = $dir . '/' . self::BUILTIN_BASENAME;
-        if (file_exists($file) || ($createFile && self::createDbFile($dir))) {
+        if (is_file($file) || ($createFile && self::createDbFile($dir))) {
             return self::connectSQLite($file);
         }
         error_log(__METHOD__ . " Db file not found and can't be created at $file");

@@ -40,7 +40,7 @@ class Migration extends Db
     {
         $server = self::$server;
         $path = dirname(__DIR__, 2) . "/config/schema_$server.sql";
-        if (file_exists($path)) {
+        if (is_file($path)) {
             error_log(__METHOD__ . " Schema found at $path");
             $sql = file_get_contents($path);
             $pdo->exec($sql);
