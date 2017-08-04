@@ -69,11 +69,15 @@ class Migration extends Db
         $stLang = $pdo->prepare($sqlLang);
         $stLangName = $pdo->prepare($sqlLangName);
 
+        $pdo->beginTransaction(); // faster: from ~45 to 1 sec
+
         foreach (Translator::getLangs() as $code => $name) {
             $stLang->execute([$code]);
             $stLangName->execute([$code, $name]);
             $rows += $stLang->rowCount() + $stLangName->rowCount();
         }
+
+        $pdo->commit();
 
         return $rows;
     }
