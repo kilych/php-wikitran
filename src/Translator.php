@@ -8,11 +8,13 @@ use Wikitran\Core\Term;
 
 class Translator
 {
+    protected $db;
+    protected $method;
+
     public const METHODS = ['web', 'db', 'mixed'];
     public const DB_METHODS = ['db', 'mixed'];
 
-    protected $db;
-    protected $method;
+    protected static $langs = [];
 
     public function __construct($pdo = null, $method = 'mixed')
     {
@@ -99,9 +101,13 @@ class Translator
     public static function getLangs()
     {
         $path = dirname(__DIR__) . '/config/langs.php';
-        if (file_exists($path)) {
+
+        if (count(self::$langs) > 0) {
+            return self::$langs;
+        } elseif (file_exists($path)) {
             require_once $path;
-            return LANGS;
+            self::$langs = LANGS;
+            return self::$langs;
         } else {
             throw new \Exception(__METHOD__ . " $path doesn't exist");
         }
