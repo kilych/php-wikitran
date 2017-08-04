@@ -17,7 +17,6 @@ class TranslatorTest extends TestCase
 
         $dbpath = Migration::createDbFile(__DIR__ . '/data');
         $pdo = Migration::connectSQLite($dbpath);
-        Migration::clear($pdo);
         Migration::run($pdo);
         $tr = new Translator($pdo);
 

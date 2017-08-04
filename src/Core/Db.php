@@ -63,4 +63,14 @@ class Db
             return false;
         }
     }
+
+    public static function isEmptyTable(\PDO $pdo, $table)
+    {
+        $st = $pdo->prepare("SELECT * FROM $table;");
+        $st->execute();
+        if (count($st->fetchAll()) === 0) {
+            return true;
+        }
+        return false;
+    }
 }

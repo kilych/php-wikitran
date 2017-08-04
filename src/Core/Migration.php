@@ -51,33 +51,38 @@ class Migration extends Db
 
     protected static function addSource(\PDO $pdo)
     {
-        error_log(__METHOD__);
-        $sql = 'INSERT INTO term_source (source_id, source) VALUES (1, \'Wikipedia\');';
-        $rows = $pdo->exec($sql);
-        return $rows;
+        if (self::isEmptyTable($pdo, 'term_source')) {
+            error_log(__METHOD__ . ' Adding term source');
+            $sql = 'INSERT INTO term_source (source_id, source) VALUES (1, \'Wikipedia\');';
+            $rows = $pdo->exec($sql);
+            return $rows;
+        }
     }
 
     protected static function addLangs(\PDO $pdo)
     {
-        error_log(__METHOD__);
-
-        $sqlLang = 'INSERT INTO lang (lang_code) VALUES (?);';
-        $sqlLangName = ' INSERT INTO lang_name (lang_code, name, name_lang)'
-                     . ' VALUES (?, ?, \'en\');';
         $rows = 0;
 
-        $stLang = $pdo->prepare($sqlLang);
-        $stLangName = $pdo->prepare($sqlLangName);
+        if (self::isEmptyTable($pdo, 'lang')) {
+            error_log(__METHOD__ . ' Adding langs');
 
-        $pdo->beginTransaction(); // faster: from ~45 to 1 sec
+            $sqlLang = 'INSERT INTO lang (lang_code) VALUES (?);';
+            $sqlLangName = ' INSERT INTO lang_name (lang_code, name, name_lang)'
+                         . ' VALUES (?, ?, \'en\');';
 
-        foreach (Translator::getLangs() as $code => $name) {
-            $stLang->execute([$code]);
-            $stLangName->execute([$code, $name]);
-            $rows += $stLang->rowCount() + $stLangName->rowCount();
+            $stLang = $pdo->prepare($sqlLang);
+            $stLangName = $pdo->prepare($sqlLangName);
+
+            $pdo->beginTransaction(); // faster: from ~45 to 1 sec
+
+            foreach (Translator::getLangs() as $code => $name) {
+                $stLang->execute([$code]);
+                $stLangName->execute([$code, $name]);
+                $rows += $stLang->rowCount() + $stLangName->rowCount();
+            }
+
+            $pdo->commit();
         }
-
-        $pdo->commit();
 
         return $rows;
     }
