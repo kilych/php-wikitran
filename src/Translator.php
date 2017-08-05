@@ -13,6 +13,7 @@ class Translator
 
     public const METHODS = ['web', 'db', 'mixed'];
     public const DB_METHODS = ['db', 'mixed'];
+    public const WEB_METHODS = ['web', 'mixed'];
 
     protected static $langs = [];
 
@@ -55,6 +56,12 @@ class Translator
         return in_array($method, self::DB_METHODS);
     }
 
+    public function isWebMethod($method = null)
+    {
+        $method = ($method) ? $method : $this->method;
+        return in_array($method, self::WEB_METHODS);
+    }
+
     /**
      * Main functionality
      *
@@ -72,7 +79,8 @@ class Translator
         if ($this->isDbMethod()
             && false !== $translation = $this->db->translate($source, $dest, $queries)) {
             return $translation;
-        } elseif (false !== $from_web = load($source, $queries)) {
+        } elseif ($this->isWebMethod()
+                  && false !== $from_web = load($source, $queries)) {
             list($succesful_query, $page) = $from_web;
             $term = new Term($source, $succesful_query, $page);
 
@@ -82,6 +90,8 @@ class Translator
 
             if (false !== $translation = $term->translate($dest)) {
                 return $translation;
+            } else {
+                return false;
             }
         } else {
             return false;
