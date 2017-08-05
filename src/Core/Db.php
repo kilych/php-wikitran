@@ -36,8 +36,14 @@ class Db
         }
     }
 
-    public static function connectMySQL($host, $db, $user, $password, $port = '', $charset = 'utf8')
-    {
+    public static function connectMySQL(
+        $db,
+        $user,
+        $password = '',
+        $host = 'localhost',
+        $port = '',
+        $charset = 'utf8'
+    ) {
         try {
             $pdo = new \PDO(
                 "mysql:host=$host;port=$port;dbname=$db;charset=$charset",

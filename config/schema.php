@@ -1,13 +1,14 @@
-/* begin table creation */
+<?php
 
-create table if not exists lang
- (lang_id smallint unsigned not null auto_increment,
+$sql =
+"create table if not exists lang
+ (lang_id integer$specific,
   lang_code char(16) not null unique,
   constraint pk_lang primary key (lang_id)
  );
 
 create table if not exists lang_name
- (name_id smallint unsigned not null auto_increment,
+ (name_id integer$specific,
   lang_code varchar(16) not null,
   name varchar(100) not null unique,
   name_lang varchar(16) not null,
@@ -19,22 +20,22 @@ create table if not exists lang_name
  );
 
 create table if not exists term
- (term_id int unsigned not null auto_increment,
+ (term_id integer$specific,
   constraint pk_term primary key (term_id)
  );
 
 create table if not exists term_source
- (source_id smallint unsigned not null auto_increment,
+ (source_id integer$specific,
   source varchar(100) not null unique,
   constraint pk_term_source primary key (source_id)
  );
 
 create table if not exists translation
- (term_id int unsigned not null,
-  trans_id int unsigned not null auto_increment,
+ (term_id integer,
+  trans_id integer$specific,
   trans varchar(255) not null,
   trans_lang varchar(16) not null,
-  source_id smallint unsigned not null,
+  source_id integer,
   constraint fk_term_id foreign key (term_id)
     references term (term_id),
   constraint fk_trans_lang foreign key (trans_lang)
@@ -46,12 +47,12 @@ create table if not exists translation
  );
 
 create table if not exists term_relation
- (rel_id int unsigned not null auto_increment,
-  term_from int unsigned not null,
-  term_to int unsigned not null,
+ (rel_id integer$specific,
+  term_from integer,
+  term_to integer,
   lang_from char(16) not null,
   lang_to char(16) not null,
-  rel_src smallint unsigned not null,
+  rel_src integer,
   constraint fk_term_from foreign key (term_from)
     references term (term_id),
   constraint fk_term_to foreign key (term_to)
@@ -65,6 +66,4 @@ create table if not exists term_relation
   constraint uc_term_relation
     unique (term_from, term_to, lang_from, lang_to, rel_src),
   constraint pk_term_relation primary key (rel_id)
- );
-
-/* end table creation */
+ );";

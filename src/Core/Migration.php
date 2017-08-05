@@ -10,15 +10,20 @@ class Migration extends Db
     const SERVERS = ['sqlite', 'mysql'];
     public static $server;
 
-    public static function run(\PDO $pdo, $server = 'sqlite')
+    public static function run(\PDO $pdo)
     {
-        error_log(__METHOD__);
-        self::$server = (in_array($server, self::SERVERS)) ? $server : 'sqlite';
+        $server = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        if (in_array($server, self::SERVERS)) {
+            self::$server = $server;
+        } else {
+            error_log("Unsupported SQL server: $server. Use SQLite or MySQL instead.\nNothing to do.");
+            exit(1);
+        }
         try {
             self::createTables($pdo);
             self::addSource($pdo);
             self::addLangs($pdo);
-        } catch (\PDOException $e) {
+        } catch (\Exception $e) {
             error_log($e->getMessage());
         }
     }
@@ -39,13 +44,18 @@ class Migration extends Db
     protected static function createTables(\PDO $pdo)
     {
         $server = self::$server;
-        $path = dirname(__DIR__, 2) . "/config/schema_$server.sql";
-        if (is_file($path)) {
-            error_log(__METHOD__ . " Schema found at $path");
-            $sql = file_get_contents($path);
+        $schema = dirname(__DIR__, 2) . "/config/schema.php";
+        $sql = '';
+        if ($server === 'mysql') {
+            $specific = ' auto_increment';
+        } else {
+            $specific = '';
+        }
+        if (is_file($schema)) {
+            require $schema;    // not require_once
             $pdo->exec($sql);
         } else {
-            throw new \Exception("$path doesn't exist");
+            throw new \Exception("Schema file doesn't exist at $schema");
         }
     }
 

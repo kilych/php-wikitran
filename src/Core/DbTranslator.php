@@ -35,8 +35,14 @@ class DbTranslator extends Db
             foreach ($queries as $try) {
                 if ($st->execute([$try, $source, $dest])
                     && $res = $st->fetchAll()) {
-                    // print_r($res);
-                    return $res[0]['dest.trans'];
+                    $server = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+                    if ($server === 'sqlite') {
+                        return $res[0]['dest.trans'];
+                    } elseif ($server === 'mysql') {
+                        return $res[0]['trans'];
+                    } else {
+                        throw new \Exception("Unsupported SQL server: $server. Use SQLite or MySQL instead.");
+                    }
                 }
             }
         }
@@ -62,10 +68,11 @@ class DbTranslator extends Db
             } catch (\Exception $e) {
                 $this->pdo->rollBack();
                 $rows = 0;
-                error_log(
-                    __METHOD__ . " Error for lang: $key translation: $value"
-                    . PHP_EOL . $e->getMessage()
-                );
+                error_log(__METHOD__);
+                if (isset($key, $value)) {
+                    error_log("Error for lang: $key translation: $value");
+                }
+                error_log($e->getMessage());
             }
             return $rows;
         } else {
