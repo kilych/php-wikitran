@@ -47,6 +47,7 @@ class Migration extends Db
         $schema = dirname(__DIR__, 2) . "/config/schema.php";
         $sql = '';
         if ($server === 'mysql') {
+            // in this case MySQL adds "not null" implicitly and silently
             $specific = ' auto_increment';
         } else {
             $specific = '';

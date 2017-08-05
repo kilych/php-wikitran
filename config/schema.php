@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * In the case of SQLite column is alias for rowid when it is integer
+ * primary key, exactly integer, not smallint, not int, not unsigned.
+ */
 $sql =
 "create table if not exists lang
  (lang_id integer$specific,
