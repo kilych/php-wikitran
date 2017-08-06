@@ -21,8 +21,7 @@ class Migration extends Db
         }
         try {
             self::createTables($pdo);
-            self::addSource($pdo);
-            self::addLangs($pdo);
+            self::addValues($pdo);
         } catch (\Exception $e) {
             error_log($e->getMessage());
         }
@@ -60,41 +59,40 @@ class Migration extends Db
         }
     }
 
-    protected static function addSource(\PDO $pdo)
-    {
-        if (self::isEmptyTable($pdo, 'term_source')) {
-            error_log(__METHOD__ . ' Adding term source');
-            $sql = 'INSERT INTO term_source (source_id, source) VALUES (1, \'Wikipedia\');';
-            $rows = $pdo->exec($sql);
-            return $rows;
-        }
-    }
-
-    protected static function addLangs(\PDO $pdo)
+    protected static function addValues(\PDO $pdo)
     {
         $rows = 0;
+        $sqlCheckSource = "SELECT * FROM term_source WHERE source_id = 1 AND source = 'Wikipedia';";
+        $sqlAddSource = "INSERT INTO term_source (source) VALUES ('Wikipedia');";
+        // lang_code is foreign key in lang_name table
+        $sqlCheckCode = 'SELECT * FROM lang_name WHERE lang_code = ?;';
+        $sqlAddCode = 'INSERT INTO lang (lang_code) VALUES (?);';
+        $sqlAddLang = "INSERT INTO lang_name (lang_code, name, name_lang) VALUES (?, ?, 'en');";
 
-        if (self::isEmptyTable($pdo, 'lang')) {
-            error_log(__METHOD__ . ' Adding langs');
+        $stCheckSource = $pdo->prepare($sqlCheckSource);
+        $stAddSource = $pdo->prepare($sqlAddSource);
+        $stCheckCode = $pdo->prepare($sqlCheckCode);
+        $stAddCode = $pdo->prepare($sqlAddCode);
+        $stAddLang = $pdo->prepare($sqlAddLang);
 
-            $sqlLang = 'INSERT INTO lang (lang_code) VALUES (?);';
-            $sqlLangName = ' INSERT INTO lang_name (lang_code, name, name_lang)'
-                         . ' VALUES (?, ?, \'en\');';
+        $pdo->beginTransaction(); // faster: from ~45 to 1 sec for SQLite
 
-            $stLang = $pdo->prepare($sqlLang);
-            $stLangName = $pdo->prepare($sqlLangName);
-
-            $pdo->beginTransaction(); // faster: from ~45 to 1 sec
-
-            foreach (Translator::getLangs() as $code => $name) {
-                $stLang->execute([$code]);
-                $stLangName->execute([$code, $name]);
-                $rows += $stLang->rowCount() + $stLangName->rowCount();
-            }
-
-            $pdo->commit();
+        $stCheckSource->execute();
+        if (empty($stCheckSource->fetchAll())) {
+            $stAddSource->execute();
         }
 
+        foreach (Translator::getLangs() as $code => $name) {
+            $stCheckCode->execute([$code]);
+            if (empty($stCheckCode->fetchAll())) {
+                $stAddCode->execute([$code]);
+                $stAddLang->execute([$code, $name]);
+                $rows += $stAddCode->rowCount() + $stAddLang->rowCount();
+            }
+        }
+
+        $pdo->commit();
+
         return $rows;
-    }
+   }
 }
