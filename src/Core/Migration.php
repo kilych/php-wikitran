@@ -73,28 +73,27 @@ class Migration extends Db
     protected static function addLangs(\PDO $pdo)
     {
         $rows = 0;
+        $sql1 = 'SELECT * FROM lang_name WHERE lang_code = ?';
+        $sql2 = 'INSERT INTO lang (lang_code) VALUES (?);';
+        $sql3 = 'INSERT INTO lang_name (lang_code, name, name_lang) VALUES (?, ?, \'en\');';
 
-        if (self::isEmptyTable($pdo, 'lang')) {
-            error_log(__METHOD__ . ' Adding langs');
+        $st1 = $pdo->prepare($sql1);
+        $st2 = $pdo->prepare($sql2);
+        $st3 = $pdo->prepare($sql3);
 
-            $sqlLang = 'INSERT INTO lang (lang_code) VALUES (?);';
-            $sqlLangName = ' INSERT INTO lang_name (lang_code, name, name_lang)'
-                         . ' VALUES (?, ?, \'en\');';
+        $pdo->beginTransaction(); // faster: from ~45 to 1 sec for SQLite
 
-            $stLang = $pdo->prepare($sqlLang);
-            $stLangName = $pdo->prepare($sqlLangName);
-
-            $pdo->beginTransaction(); // faster: from ~45 to 1 sec
-
-            foreach (Translator::getLangs() as $code => $name) {
-                $stLang->execute([$code]);
-                $stLangName->execute([$code, $name]);
-                $rows += $stLang->rowCount() + $stLangName->rowCount();
+        foreach (Translator::getLangs() as $code => $name) {
+            $st1->execute([$code]);
+            if (! $st1->fetchAll()) {
+                $st2->execute([$code]);
+                $st3->execute([$code, $name]);
+                $rows += $st2->rowCount() + $st3->rowCount();
             }
-
-            $pdo->commit();
         }
 
+        $pdo->commit();
+
         return $rows;
-    }
+   }
 }
