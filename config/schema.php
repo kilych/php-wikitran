@@ -8,6 +8,7 @@ $sql =
 "create table if not exists lang
  (lang_id integer$specific,
   lang_code char(16) not null unique,
+  timestamp datetime default current_timestamp not null,
   constraint pk_lang primary key (lang_id)
  );
 
@@ -16,6 +17,7 @@ create table if not exists lang_name
   lang_code varchar(16) not null,
   name varchar(100) not null unique,
   name_lang varchar(16) not null,
+  timestamp datetime default current_timestamp not null,
   constraint fk_lang_name_code foreign key (lang_code)
     references lang (lang_code),
   constraint fk_name_lang foreign key (name_lang)
@@ -25,12 +27,14 @@ create table if not exists lang_name
 
 create table if not exists term
  (term_id integer$specific,
+  timestamp datetime default current_timestamp not null,
   constraint pk_term primary key (term_id)
  );
 
 create table if not exists term_source
  (source_id integer$specific,
   source varchar(100) not null unique,
+  timestamp datetime default current_timestamp not null,
   constraint pk_term_source primary key (source_id)
  );
 
@@ -40,6 +44,7 @@ create table if not exists translation
   trans varchar(255) not null,
   trans_lang varchar(16) not null,
   source_id integer,
+  timestamp datetime default current_timestamp not null,
   constraint fk_term_id foreign key (term_id)
     references term (term_id),
   constraint fk_trans_lang foreign key (trans_lang)
@@ -57,6 +62,7 @@ create table if not exists term_relation
   lang_from char(16) not null,
   lang_to char(16) not null,
   rel_src integer,
+  timestamp datetime default current_timestamp not null,
   constraint fk_term_from foreign key (term_from)
     references term (term_id),
   constraint fk_term_to foreign key (term_to)
