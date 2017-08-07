@@ -12,6 +12,7 @@ class Migration extends Db
 
     public static function run(\PDO $pdo)
     {
+        error_log(__METHOD__);
         $server = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
         if (in_array($server, self::SERVERS)) {
             self::$server = $server;
@@ -94,5 +95,5 @@ class Migration extends Db
         $pdo->commit();
 
         return $rows;
-   }
+    }
 }
