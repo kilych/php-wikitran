@@ -4,7 +4,7 @@ namespace Wikitran;
 
 use Wikitran\Core\DbTranslator;
 use function Wikitran\Core\load_page as load;
-use Wikitran\Core\Term;
+use function Wikitran\Core\parse_page as parse;
 
 class Translator
 {
@@ -82,17 +82,13 @@ class Translator
         } elseif ($this->isWebMethod()
                   && false !== $from_web = load($source, $queries)) {
             list($succesful_query, $page) = $from_web;
-            $term = new Term($source, $succesful_query, $page);
+            $term = parse($source, $succesful_query, $page);
 
             if ($this->isDbMethod()) {
                 $saved = $this->db->save($term);
             }
 
-            if (false !== $translation = $term->translate($dest)) {
-                return $translation;
-            } else {
-                return false;
-            }
+            return $term->translate($dest);
         } else {
             return false;
         }
