@@ -4,22 +4,40 @@ namespace Wikitran\Core;
 
 class Term
 {
-    public $translations;
-    public $links_to;
+    protected $translations = [];
+    protected $links_to = [];
 
-    public function __construct(array $translations, array $links_to)
+    public function __construct(array $translations = [], array $links_to = [])
     {
-        $this->translations = $translations;
+        $this->setTranslations($translations);
+        $this->setLinksTo($links_to);
+    }
+
+    public function setTranslations(array $translations = [])
+    {
+        foreach ($translations as $lang => $tr) {
+            $this->translations[$lang] = $tr;
+        }
+    }
+
+    public function getTranslations()
+    {
+        return $this->translations;
+    }
+
+    public function setLinksTo(array $links_to = [])
+    {
         $this->links_to = $links_to;
     }
 
-    public function translate(string $dest)
+    public function translate(array $dests)
     {
-        if (isset($this->translations) &&
-            isset($this->translations[$dest])) {
-            return $this->translations[$dest];
-        } else {
-            return false;
+        $res = [];
+        foreach ($dests as $dest) {
+            if (array_key_exists($dest, $this->translations)) {
+                $res[$dest] = $this->translations[$dest];
+            }
         }
+        return (empty($res)) ? false : $res;
     }
 }

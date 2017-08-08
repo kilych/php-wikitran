@@ -28,6 +28,50 @@ class Translator
         $this->setMethod($method);
     }
 
+    /**
+     * Main functionality
+     * @param string $source Source language
+     * @param string $dest Destination language
+     * @param string $query Query for translation
+     * @return mixed Returns translation string or false
+     */
+    public function translate(string $query, string $source, ...$dests)
+    {
+        $queries = self::varyQuery(self::normalize($query));
+        if ($this->isDbMethod()
+            && false !== $term = $this->db->getTerm($queries, $source)) {
+        } elseif ($this->isWebMethod()) {
+            $term = $this->getTerm($queries, $source);
+            if ($this->isDbMethod()) {
+                $this->db->save($term);
+            }
+        }
+        if (isset($term) && $term) {
+            return $term->translate($dests);
+        }
+        return false;
+    }
+
+    public function translateSet(string $source, string $dest, array $queries)
+    {
+        return array_filter(array_map(
+            function ($query) use ($source, $dest) {
+                return $this->translate($source, $dest, $query);
+            },
+            $queries
+        ));
+    }
+
+    public function getTerm(array $queries, $source)
+    {
+        if (false !== $from_web = load($source, $queries)) {
+            list($succesful_query, $page) = $from_web;
+            $term = parse($source, $succesful_query, $page);
+            return $term;
+        }
+        return false;
+    }
+
     public function getMethod()
     {
         return $this->method;
@@ -35,7 +79,7 @@ class Translator
 
     public function setMethod($method)
     {
-        if (! $this->db->isConnectionSet()) {
+        if (! $this->db->connected()) {
             $this->method = 'web';
         } elseif ($this->isMethod($method)) {
             $this->method = $method;
@@ -60,48 +104,6 @@ class Translator
     {
         $method = ($method) ? $method : $this->method;
         return in_array($method, self::WEB_METHODS);
-    }
-
-    /**
-     * Main functionality
-     *
-     * @param string $source Source language
-     *
-     * @param string $dest Destination language
-     *
-     * @param string $query Query for translation
-     *
-     * @return mixed Returns translation string or false
-     */
-    public function translate(string $source, string $dest, string $query)
-    {
-        $queries = self::varyQuery(self::normalize($query));
-        if ($this->isDbMethod()
-            && false !== $translation = $this->db->translate($source, $dest, $queries)) {
-            return $translation;
-        } elseif ($this->isWebMethod()
-                  && false !== $from_web = load($source, $queries)) {
-            list($succesful_query, $page) = $from_web;
-            $term = parse($source, $succesful_query, $page);
-
-            if ($this->isDbMethod()) {
-                $saved = $this->db->save($term);
-            }
-
-            return $term->translate($dest);
-        } else {
-            return false;
-        }
-    }
-
-    public function translateSet(string $source, string $dest, array $queries)
-    {
-        return array_filter(array_map(
-            function ($query) use ($source, $dest) {
-                return $this->translate($source, $dest, $query);
-            },
-            $queries
-        ));
     }
 
     public static function getLangs()

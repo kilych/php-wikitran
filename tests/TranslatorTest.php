@@ -13,8 +13,8 @@ class TranslatorTest extends TestCase
      */
     public function testTranslate()
     {
-        $translated = 'How the Steel Was Tempered';
-        $translated1 = 'United Nations';
+        $translated = ['en' => 'How the Steel Was Tempered'];
+        $translated1 = ['en' => 'United Nations'];
 
         $dbpath = Migration::createDbFile(__DIR__ . '/data');
         $pdo = Migration::connectSQLite($dbpath);
@@ -25,16 +25,16 @@ class TranslatorTest extends TestCase
         $this->assertEquals('mixed', $tr->getMethod());
         $tr->setMethod('web');
         $this->assertEquals('web', $tr->getMethod());
-        $this->assertEquals($translated, $tr->translate('ru', 'en', 'как закалялась сталь'));
-        $this->assertEquals($translated1, $tr->translate('ru', 'en', 'оон'));
+        $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
+        $this->assertEquals($translated1, $tr->translate('оон', 'ru', 'en'));
 
         $tr->setMethod('mixed');
         $this->assertEquals('mixed', $tr->getMethod());
-        $this->assertEquals($translated, $tr->translate('ru', 'en', 'как закалялась сталь'));
+        $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
 
         $tr->setMethod('db');
         $this->assertEquals('db', $tr->getMethod());
-        $this->assertEquals($translated, $tr->translate('ru', 'en', 'как закалялась сталь'));
+        $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
 
         error_log(PHP_EOL . 'Test MySQL');
 
@@ -44,10 +44,10 @@ class TranslatorTest extends TestCase
         $trMy = new Translator($pdoMy);
 
         $this->assertEquals('mixed', $trMy->getMethod());
-        $this->assertEquals($translated, $trMy->translate('ru', 'en', 'как закалялась сталь'));
+        $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
 
         $trMy->setMethod('db');
         $this->assertEquals('db', $trMy->getMethod());
-        $this->assertEquals($translated, $trMy->translate('ru', 'en', 'как закалялась сталь'));
+        $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
     }
 }

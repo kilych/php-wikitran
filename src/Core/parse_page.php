@@ -8,7 +8,7 @@ use function Wikitran\Lib\generate_cuts as generate;
 function parse_page(string $source, string $query, string $page)
 {
     $term = new Term(get_translations($page), get_links($source, $page));
-    $term->translations[$source] = $query;
+    $term->setTranslations([$source => $query]);
     return $term;
 }
 

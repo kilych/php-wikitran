@@ -5,6 +5,21 @@ namespace Wikitran\Core;
 class Db
 {
     const BUILTIN_BASENAME = 'cache.sqlite';
+    protected $pdo;             // \PDO object or false
+
+    public function __construct($pdo = null)
+    {
+        if ($pdo instanceof \PDO) {
+            $this->pdo = $pdo;
+        } else {
+            $this->pdo = self::connectBuiltIn();
+        }
+    }
+
+    public function connected()
+    {
+        return $this->pdo instanceof \PDO;
+    }
 
     protected static function getBuiltInDirname()
     {
@@ -68,15 +83,5 @@ class Db
         } else {
             return false;
         }
-    }
-
-    public static function isEmptyTable(\PDO $pdo, $table)
-    {
-        $st = $pdo->prepare("SELECT * FROM $table;");
-        $st->execute();
-        if (count($st->fetchAll()) === 0) {
-            return true;
-        }
-        return false;
     }
 }

@@ -3,46 +3,37 @@
 namespace Wikitran\Core;
 
 use Wikitran\Core\Db;
+use Wikitran\Core\Term;
 
 class DbTranslator extends Db
 {
-    protected $pdo;              // \PDO object or false
-
-    public function __construct($pdo = null)
+    public function getTerm(array $queries, string $source)
     {
-        if ($pdo instanceof \PDO) {
-            $this->pdo = $pdo;
-        } else {
-            $this->pdo = self::connectBuiltIn();
-        }
-    }
+        if ($this->connected()) {
+            $server = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            if ($server === 'sqlite') {
+                $prefix = 'dest.';
+            } elseif ($server === 'mysql') {
+                $prefix = '';
+            } else {
+                throw new \Exception("Unsupported SQL server: $server. Use SQLite or MySQL instead.");
+            }
 
-    public function isConnectionSet()
-    {
-        return $this->pdo instanceof \PDO;
-    }
-
-    public function translate(string $source, string $dest, array $queries)
-    {
-        if ($this->pdo) {
             // SQL query for translation:
             $st = $this->pdo->prepare(
-                'SELECT dest.trans FROM translation dest INNER JOIN '
-                . '(SELECT * FROM translation WHERE trans = ? AND trans_lang = ?) `source` '
-                . 'ON dest.term_id = source.term_id '
-                . 'WHERE dest.trans_lang = ?;'
+                'SELECT DISTINCT dest.trans_lang, dest.trans FROM translation dest INNER JOIN'
+                . ' (SELECT * FROM translation WHERE trans_lang = ? AND trans = ?) `source`'
+                . ' ON dest.term_id = source.term_id'
+                . ' ORDER BY dest.term_id;'
             );
+
             foreach ($queries as $try) {
-                if ($st->execute([$try, $source, $dest])
-                    && $res = $st->fetchAll()) {
-                    $server = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
-                    if ($server === 'sqlite') {
-                        return $res[0]['dest.trans'];
-                    } elseif ($server === 'mysql') {
-                        return $res[0]['trans'];
-                    } else {
-                        throw new \Exception("Unsupported SQL server: $server. Use SQLite or MySQL instead.");
+                if ($st->execute([$source, $try]) && $rows = $st->fetchAll()) {
+                    $res = [];
+                    foreach ($rows as $row) {
+                        $res[$row["{$prefix}trans_lang"]] = $row["{$prefix}trans"];
                     }
+                    return new Term($res);
                 }
             }
         }
@@ -51,16 +42,15 @@ class DbTranslator extends Db
 
     public function save($term)
     {
-        $sql = "INSERT INTO translation (term_id, trans, trans_lang, source_id)\n" .
-             "VALUES (?, ?, ?, 1);";
+        $sql = "INSERT INTO translation (term_id, trans, trans_lang, source_id) VALUES (?, ?, ?, 1);";
         $rows = 0;
-        if ($this->pdo) {
+        if ($this->connected()) {
             try {
                 $st = $this->pdo->prepare($sql);
                 $this->pdo->beginTransaction();
                 $this->pdo->exec('INSERT INTO term (term_id) VALUES (null);');
                 $id = $this->pdo->lastInsertId();
-                foreach ($term->translations as $key => $value) {
+                foreach ($term->getTranslations() as $key => $value) {
                     $execution = $st->execute([$id, $value, $key]);
                     $rows += $st->rowCount();
                 }
