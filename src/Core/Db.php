@@ -7,12 +7,33 @@ class Db
     const BUILTIN_BASENAME = 'cache.sqlite';
     protected $pdo;             // \PDO object or false
 
-    public function __construct($pdo = null)
+    public function __construct($pdo = null, array $dbconfig = [])
     {
         if ($pdo instanceof \PDO) {
             $this->pdo = $pdo;
         } else {
+            $this->connect($dbconfig);
+        }
+    }
+
+    public function connect(array $config = [])
+    {
+        if (empty($config)) {
             $this->pdo = self::connectBuiltIn();
+        } elseif (array_key_exists('server', $config)
+                  && $config['server'] === 'sqlite') {
+            if (array_key_exists('file', $config)) {
+                $this->pdo = self::connectSQLite($config['file']);
+            } else {
+                throw new Exception('Should specify db file to connect SQLite');
+            }
+        } elseif (array_key_exists('server', $config)
+                  && $config['server'] === 'mysql') {
+            if (array_key_exists(['db', 'user'], $config)) {
+                $this->pdo = self::connectMySQL($config);
+            } else {
+                throw new Exception('Should specify at least db and user to connect SQLite');
+            }
         }
     }
 
@@ -51,14 +72,15 @@ class Db
         }
     }
 
-    public static function connectMySQL(
-        $db,
-        $user,
-        $password = '',
-        $host = 'localhost',
-        $port = '',
-        $charset = 'utf8'
-    ) {
+    public static function connectMySQL(array $config) {
+        $default = [
+            'password' => '',
+            'host' => 'localhost',
+            'port' => '',
+            'charset' => 'utf8'
+        ];
+        $config = array_merge($default, $config);
+        extract($config);
         try {
             $pdo = new \PDO(
                 "mysql:host=$host;port=$port;dbname=$db;charset=$charset",

@@ -38,7 +38,9 @@ class TranslatorTest extends TestCase
 
         error_log(PHP_EOL . 'Test MySQL');
 
-        $pdoMy = Migration::connectMySQL('wikitran_test_db', 'wikitran_test_user');
+        $pdoMy = Migration::connectMySQL(
+            ['db' => 'wikitran_test_db', 'user' => 'wikitran_test_user']
+        );
         // Migration::clear($pdoMy);
         Migration::run($pdoMy);
         $trMy = new Translator($pdoMy);
