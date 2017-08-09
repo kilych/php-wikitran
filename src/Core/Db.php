@@ -54,7 +54,7 @@ class Db
         if (is_file($file) || ($createFile && self::createDbFile($dir))) {
             return self::connectSQLite($file);
         }
-        error_log(__METHOD__ . " Db file not found and can't be created at $file");
+        error_log(__METHOD__ . " Db file not found and not created at $file");
         return false;
     }
 
@@ -64,7 +64,7 @@ class Db
             $pdo = new \PDO("sqlite:$file");
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $pdo->exec('PRAGMA foreign_keys = ON;');
-            error_log(__METHOD__ . " Db file: $file");
+            error_log(__METHOD__ . " at $file");
             return $pdo;
         } catch (\Exception $e) {
             error_log(__METHOD__ . ' ' . $e->getMessage());
@@ -89,6 +89,7 @@ class Db
                 [\PDO::ATTR_EMULATE_PREPARES => false, // Really need ???
                  \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
             );
+            error_log(__METHOD__);
             return $pdo;
         } catch (\Exception $e) {
             error_log(__METHOD__ . ' ' . $e->getMessage());
@@ -100,9 +101,10 @@ class Db
     {
         $file = $dir . '/' . self::BUILTIN_BASENAME;
         if ((is_dir($dir) || mkdir($dir)) && touch($file)) {
-            error_log(__METHOD__ . " Db file: $file");
+            error_log(__METHOD__ . " at $file");
             return $file;
         } else {
+            error_log(__METHOD__ . " failed at $file");
             return false;
         }
     }
