@@ -23,7 +23,7 @@ class Db
 
     protected static function getBuiltInDirname()
     {
-        return dirname(__DIR__, 2) . '/data';
+        return dirname(__DIR__, 2) . '/db';
     }
 
     public static function connectBuiltIn($createFile = false)

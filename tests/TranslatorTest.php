@@ -16,7 +16,7 @@ class TranslatorTest extends TestCase
         $translated = ['en' => 'How the Steel Was Tempered'];
         $translated1 = ['en' => 'United Nations'];
 
-        $dbpath = Migration::createDbFile(__DIR__ . '/data');
+        $dbpath = Migration::createDbFile(__DIR__ . '/db');
         $pdo = Migration::connectSQLite($dbpath);
         // Migration::clear($pdo);
         Migration::run($pdo);

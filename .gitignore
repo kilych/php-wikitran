@@ -2,5 +2,5 @@ build
 vendor
 
 # project specific
-data
-tests/data
+db
+tests/db
