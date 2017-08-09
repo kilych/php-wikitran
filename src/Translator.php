@@ -30,13 +30,18 @@ class Translator
 
     /**
      * Main functionality
+     * @param string $query Query for translation
      * @param string $source Source language
      * @param string $dest Destination language
-     * @param string $query Query for translation
-     * @return mixed Returns translation string or false
+     * @param string[] $dests Rest destination languages
+     * @return mixed Returns translation array or false
      */
-    public function translate(string $query, string $source, ...$dests)
+    public function translate(string $query, string $source, string $dest, string ...$dests)
     {
+        array_unshift($dests, $dest);
+        if (in_array('all', $dests)) {
+            $dests = ['all'];
+        }
         $queries = self::varyQuery(self::normalize($query));
         if ($this->isDbMethod()
             && false !== $term = $this->db->getTerm($queries, $source)) {

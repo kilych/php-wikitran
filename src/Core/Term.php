@@ -32,6 +32,9 @@ class Term
 
     public function translate(array $dests)
     {
+        if (in_array('all', $dests)) {
+            return $this->translations;
+        }
         $res = [];
         foreach ($dests as $dest) {
             if (array_key_exists($dest, $this->translations)) {
