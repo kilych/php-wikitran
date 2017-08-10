@@ -4,7 +4,7 @@ namespace Wikitran;
 
 use PHPUnit\Framework\TestCase;
 use Wikitran\Translator;
-use Wikitran\Core\Migration;
+use Wikitran\Core\DbInit;
 
 class TranslatorTest extends TestCase
 {
@@ -16,11 +16,11 @@ class TranslatorTest extends TestCase
         $translated = ['en' => 'How the Steel Was Tempered'];
         $translated1 = ['en' => 'United Nations'];
 
-        $dbpath = Migration::createDbFile(__DIR__ . '/db');
-        $pdo = Migration::connectSQLite($dbpath);
-        // Migration::clear($pdo);
-        Migration::run($pdo);
-        $tr = new Translator($pdo);
+        $db = new DbInit(null, ['server' => 'sqlite', 'file' => __DIR__ . '/db/cache.sqlite', 'createFile' => true]);
+        $db->clear();
+        $db->run();
+        $db->run();             // test idempotency
+        $tr = new Translator($db->getConnection());
 
         $this->assertEquals('mixed', $tr->getMethod());
         $tr->setMethod('web');
@@ -38,12 +38,11 @@ class TranslatorTest extends TestCase
 
         error_log(PHP_EOL . 'Test MySQL');
 
-        $pdoMy = Migration::connectMySQL(
-            ['db' => 'wikitran_test_db', 'user' => 'wikitran_test_user']
-        );
-        // Migration::clear($pdoMy);
-        Migration::run($pdoMy);
-        $trMy = new Translator($pdoMy);
+        $db = new DbInit(null, ['server' => 'mysql', 'db' => 'wikitran_test_db', 'user' => 'wikitran_test_user']);
+        $db->clear();
+        $db->run();
+        $db->run();             // test idempotency
+        $trMy = new Translator($db->getConnection());
 
         $this->assertEquals('mixed', $trMy->getMethod());
         $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));

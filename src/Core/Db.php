@@ -4,8 +4,7 @@ namespace Wikitran\Core;
 
 class Db
 {
-    const BUILTIN_BASENAME = 'cache.sqlite';
-    protected $pdo;             // \PDO object or false
+    protected $pdo;             // \PDO object
 
     public function __construct($pdo = null, array $dbconfig = [])
     {
@@ -23,17 +22,20 @@ class Db
         } elseif (array_key_exists('server', $config)
                   && $config['server'] === 'sqlite') {
             if (array_key_exists('file', $config)) {
-                $this->pdo = self::connectSQLite($config['file']);
+                $this->pdo = self::connectSQLite($config);
             } else {
                 throw new Exception('Should specify db file to connect SQLite');
             }
         } elseif (array_key_exists('server', $config)
                   && $config['server'] === 'mysql') {
-            if (array_key_exists(['db', 'user'], $config)) {
+            if (array_key_exists('db', $config)
+                && array_key_exists('user', $config)) {
                 $this->pdo = self::connectMySQL($config);
             } else {
-                throw new Exception('Should specify at least db and user to connect SQLite');
+                throw new Exception('Should specify at least db and user to connect MySQL');
             }
+        } else {
+            error_log(__METHOD__ . ' Db connection is not set');
         }
     }
 
@@ -42,37 +44,66 @@ class Db
         return $this->pdo instanceof \PDO;
     }
 
-    protected static function getBuiltInDirname()
+    public function getConnection()
     {
-        return dirname(__DIR__, 2) . '/db';
+        return ($this->connected()) ? $this->pdo : false;
     }
 
-    public static function connectBuiltIn($createFile = false)
+    public function setConnection(\PDO $pdo)
     {
-        $dir = self::getBuiltInDirname();
-        $file = $dir . '/' . self::BUILTIN_BASENAME;
-        if (is_file($file) || ($createFile && self::createDbFile($dir))) {
-            return self::connectSQLite($file);
+        $this->pdo = $pdo;
+    }
+
+    public static function connectBuiltIn()
+    {
+        $file = self::getBuiltInFilePath();
+        if (is_file($file)) {
+            return self::connectSQLite(['file' => $file]);
+        }
+        error_log(__METHOD__ . " Db file not found at $file");
+        return false;
+    }
+
+    protected static function getBuiltInFilePath()
+    {
+        return dirname(__DIR__, 2) . '/db/cache.sqlite';
+    }
+
+    public static function connectSQLite(array $config)
+    {
+        $default = ['createFile' => false];
+        $config = array_merge($default, $config);
+        extract($config);
+        if (is_file($file) || ($createFile && self::createDbFile($file))) {
+            try {
+                $pdo = new \PDO("sqlite:$file");
+                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                $pdo->exec('PRAGMA foreign_keys = ON;');
+                error_log(__METHOD__ . " at $file");
+                return $pdo;
+            } catch (\Exception $e) {
+                error_log(__METHOD__ . ' ' . $e->getMessage());
+                return false;
+            }
         }
         error_log(__METHOD__ . " Db file not found and not created at $file");
         return false;
     }
 
-    public static function connectSQLite($file)
+    public static function createDbFile($file)
     {
-        try {
-            $pdo = new \PDO("sqlite:$file");
-            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $pdo->exec('PRAGMA foreign_keys = ON;');
+        $dir = dirname($file);
+        if ((is_dir($dir) || mkdir($dir)) && touch($file)) {
             error_log(__METHOD__ . " at $file");
-            return $pdo;
-        } catch (\Exception $e) {
-            error_log(__METHOD__ . ' ' . $e->getMessage());
+            return $file;
+        } else {
+            error_log(__METHOD__ . " failed at $file");
             return false;
         }
     }
 
-    public static function connectMySQL(array $config) {
+    public static function connectMySQL(array $config)
+    {
         $default = [
             'password' => '',
             'host' => 'localhost',
@@ -93,18 +124,6 @@ class Db
             return $pdo;
         } catch (\Exception $e) {
             error_log(__METHOD__ . ' ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    public static function createDbFile($dir)
-    {
-        $file = $dir . '/' . self::BUILTIN_BASENAME;
-        if ((is_dir($dir) || mkdir($dir)) && touch($file)) {
-            error_log(__METHOD__ . " at $file");
-            return $file;
-        } else {
-            error_log(__METHOD__ . " failed at $file");
             return false;
         }
     }
