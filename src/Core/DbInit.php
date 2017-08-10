@@ -5,39 +5,50 @@ namespace Wikitran\Core;
 use Wikitran\Core\Db;
 use Wikitran\Translator;
 
-class Migration extends Db
+class DbInit extends Db
 {
     const SERVERS = ['sqlite', 'mysql'];
-    public static $server;
+    protected static $server;
 
-    public static function run(\PDO $pdo)
+    public function run()
     {
         error_log(__METHOD__);
-        $server = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
-        if (in_array($server, self::SERVERS)) {
-            self::$server = $server;
+        if ($this->connected()) {
+            $pdo = $this->pdo;
+            $server = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            if (in_array($server, self::SERVERS)) {
+                self::$server = $server;
+            } else {
+                error_log("Unsupported SQL server: $server. Use SQLite or MySQL instead.\nNothing to do.");
+                exit(1);
+            }
+            try {
+                self::createTables($pdo);
+                self::addValues($pdo);
+            } catch (\Exception $e) {
+                error_log($e->getMessage());
+            }
         } else {
-            error_log("Unsupported SQL server: $server. Use SQLite or MySQL instead.\nNothing to do.");
+            error_log("Db connection is not set.\nNothing to do.");
             exit(1);
-        }
-        try {
-            self::createTables($pdo);
-            self::addValues($pdo);
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
         }
     }
 
-    public static function clear(\PDO $pdo)
+    public function clear()
     {
         error_log(__METHOD__);
         $tables = ['term_relation', 'translation', 'term', 'term_source', 'lang_name', 'lang'];
-        try {
-            foreach ($tables as $table) {
-                $pdo->exec("DROP TABLE IF EXISTS $table;");
+        if ($this->connected()) {
+            $pdo = $this->pdo;
+            try {
+                foreach ($tables as $table) {
+                    $pdo->exec("DROP TABLE IF EXISTS $table;");
+                }
+            } catch (\Exception $e) {
+                error_log($e->getMessage());
             }
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
+        } else {
+            error_log("Db connection is not set.\nNothing to do.");
         }
     }
 

@@ -19,12 +19,7 @@ class Translator
 
     public function __construct($pdo = null, $method = 'mixed')
     {
-        if ($pdo instanceof \PDO) {
-            $this->db = new DbTranslator($pdo);
-        } else {
-            $this->db = new DbTranslator();
-        }
-
+        $this->db = new DbTranslator($pdo);
         $this->setMethod($method);
     }
 
