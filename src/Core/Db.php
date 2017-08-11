@@ -86,7 +86,7 @@ class Db
                 return false;
             }
         }
-        error_log(__METHOD__ . " Db file not found and not created at $file");
+        error_log(__METHOD__ . " Db file not found at $file");
         return false;
     }
 
@@ -100,6 +100,8 @@ class Db
             error_log(__METHOD__ . " failed at $file");
             return false;
         }
+        error_log(__METHOD__ . " Db file not found and not created at $file");
+        return false;
     }
 
     public static function connectMySQL(array $config)
