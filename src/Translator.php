@@ -8,8 +8,13 @@ use function Wikitran\Core\parse_page as parse;
 
 class Translator
 {
+    protected $config = [
+        'method' => 'mixed',
+        'source' => 'en',
+        'dests' => ['all'],
+        'db' => []
+    ];
     protected $db;
-    protected $method;
 
     public const METHODS = ['web', 'db', 'mixed'];
     public const DB_METHODS = ['db', 'mixed'];
@@ -17,27 +22,47 @@ class Translator
 
     protected static $langs = [];
 
-    public function __construct($pdo = null, $method = 'mixed')
+    public function __construct($config = [], $pdo = null)
     {
-        $this->db = new DbTranslator($pdo);
-        $this->setMethod($method);
+        $dbconfig = (array_key_exists('db', $config)) ?
+                  $config['db'] : $this->config['db'];
+        $this->db = new DbTranslator($pdo, $dbconfig);
+        $this->setConfig($config);
     }
 
     /**
      * Main functionality
      * @param string $query Query for translation
-     * @param string $source Source language
-     * @param string $dest Destination language
-     * @param string[] $dests Rest destination languages
+     * @param string[] $langs Languages: first as source language,
+     * rest as destination languages.
      * @return mixed Returns translation array or false
      */
-    public function translate(string $query, string $source, string $dest, string ...$dests)
+    public function translate(string $query, string ...$langs)
     {
-        array_unshift($dests, $dest);
+        if ($query === '') {
+            error_log(__METHOD__ . ' empty query for translation');
+            return false;
+        }
+        $queries = self::varyQuery(self::normalize($query));
+
+        switch (count($langs)) {
+            case 0:
+                $source = $this->config['source'];
+                $dests = $this->config['dests'];
+                break;
+            case 1:
+                $source = $langs[0];
+                $dests = $this->config['dests'];
+                break;
+            default:
+                $source = array_shift($langs);
+                $dests = $langs;
+        }
+
         if (in_array('all', $dests)) {
             $dests = ['all'];
         }
-        $queries = self::varyQuery(self::normalize($query));
+
         if ($this->isDbMethod()
             && false !== $term = $this->db->getTerm($queries, $source)) {
         } elseif ($this->isWebMethod()) {
@@ -46,10 +71,8 @@ class Translator
                 $this->db->save($term);
             }
         }
-        if (isset($term) && $term) {
-            return $term->translate($dests);
-        }
-        return false;
+
+        return (isset($term) && $term) ? $term->translate($dests) : false;
     }
 
     public function translateSet(string $source, string $dest, array $queries)
@@ -72,52 +95,67 @@ class Translator
         return false;
     }
 
-    public function getMethod()
-    {
-        return $this->method;
-    }
-
-    public function setMethod($method)
+    public function setConfig(array $config)
     {
         if (! $this->db->connected()) {
-            $this->method = 'web';
-        } elseif ($this->isMethod($method)) {
-            $this->method = $method;
-        } else {
-            $this->method = 'mixed';
+            $config['method'] = 'web';
+            error_log(__METHOD__ . ' No db connection. Translation method is "web"');
+        } elseif (array_key_exists('method', $config)
+                  && !in_array($config['method'], self::METHODS)) {
+            error_log(__METHOD__ . "Unexpected method: {$config['method']}");
+            unset($config['method']);
         }
+
+        if (array_key_exists('source', $config)
+            && !self::isLang($config['source'], true)) {
+            unset($config['source']);
+        }
+
+        if (array_key_exists('dests', $config) && is_array($config['dests'])) {
+            $config['dests'] = array_filter($config['dests'], function ($lang) {
+                return self::isLang($lang, true);
+            });
+        }
+
+        $this->config = array_merge($this->config, $config);
     }
 
-    public function isMethod($method = null)
+    public function getMethod()
     {
-        $method = ($method) ? $method : $this->method;
-        return in_array($method, self::METHODS);
+        return $this->config['method'];
     }
 
-    public function isDbMethod($method = null)
+    public function isDbMethod()
     {
-        $method = ($method) ? $method : $this->method;
-        return in_array($method, self::DB_METHODS);
+        return in_array($this->config['method'], self::DB_METHODS);
     }
 
-    public function isWebMethod($method = null)
+    public function isWebMethod()
     {
-        $method = ($method) ? $method : $this->method;
-        return in_array($method, self::WEB_METHODS);
+        return in_array($this->config['method'], self::WEB_METHODS);
+    }
+
+    public static function isLang($langCode, $say = false)
+    {
+        $res = array_key_exists($langCode, self::getLangs());
+        if (!$res && $say) {
+            error_log(__METHOD__ . " Unknown language code: $langCode");
+        }
+        return $res;
     }
 
     public static function getLangs()
     {
         $path = dirname(__DIR__) . '/config/langs.php';
 
-        if (count(self::$langs) > 0) {
+        if (! empty(self::$langs)) {
             return self::$langs;
         } elseif (is_file($path)) {
             require_once $path;
             self::$langs = LANGS;
             return self::$langs;
         } else {
-            throw new \Exception(__METHOD__ . " $path doesn't exist");
+            throw new \Exception(__METHOD__ . " $path isn't file");
         }
     }
 
@@ -143,8 +181,8 @@ class Translator
         };
         if ($encoding == 'ASCII') {
             return ucfirst(strtolower($q));
-        } // expects known (mb_list_encodings) encoding:
-        else {
+        } else {
+            // expects known (mb_list_encodings) encoding:
             return $mb_ucfirst(mb_convert_case($q, MB_CASE_LOWER, $encoding));
         }
     }

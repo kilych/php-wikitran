@@ -20,19 +20,19 @@ class TranslatorTest extends TestCase
         $db->clear();
         $db->run();
         $db->run();             // test idempotency
-        $tr = new Translator($db->getConnection());
+        $tr = new Translator([], $db->getConnection());
 
         $this->assertEquals('mixed', $tr->getMethod());
-        $tr->setMethod('web');
+        $tr->setConfig(['method' => 'web']);
         $this->assertEquals('web', $tr->getMethod());
         $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
         $this->assertEquals($translated1, $tr->translate('оон', 'ru', 'en'));
 
-        $tr->setMethod('mixed');
+        $tr->setConfig(['method' => 'mixed']);
         $this->assertEquals('mixed', $tr->getMethod());
         $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
 
-        $tr->setMethod('db');
+        $tr->setConfig(['method' => 'db']);
         $this->assertEquals('db', $tr->getMethod());
         $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
 
@@ -42,12 +42,12 @@ class TranslatorTest extends TestCase
         $db->clear();
         $db->run();
         $db->run();             // test idempotency
-        $trMy = new Translator($db->getConnection());
+        $trMy = new Translator([], $db->getConnection());
 
         $this->assertEquals('mixed', $trMy->getMethod());
         $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
 
-        $trMy->setMethod('db');
+        $trMy->setConfig(['method' => 'db']);
         $this->assertEquals('db', $trMy->getMethod());
         $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
     }
