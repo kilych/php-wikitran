@@ -2,21 +2,21 @@
 
 <?php
 
-use Wikitran\Core\Migration;
+use Wikitran\Core\DbInit;
 
-$autoloadExplicit = __DIR__ . '/../vendor/autoload.php';
+$autoloadRoot = __DIR__ . '/../vendor/autoload.php';
 $autoloadDependency = __DIR__ . '/../../../autoload.php';
 
-if (is_file($autoloadExplicit)) {
-    require $autoloadExplicit;
+if (is_file($autoloadRoot)) {
+    require $autoloadRoot;
 } elseif (is_file($autoloadDependency)) {
     require $autoloadDependency;
 } else {
-    exit('Autoload script not found.');
+    error_log('Autoload script not found.');
+    exit(1);
 }
 
-if ($pdo = Migration::connectBuiltIn(true)) {
-    Migration::run($pdo);
-} else {
-    die('Db connection is not set. Nothing to do.');
-}
+$dbFile = dirname(__DIR__) . '/db/cache.sqlite';
+
+$db = new DbInit(null, ['server' => 'sqlite', 'file' => $dbFile, 'createFile' => true]);
+$db->run();
