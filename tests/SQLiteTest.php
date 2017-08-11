@@ -4,15 +4,13 @@ namespace Wikitran;
 
 use PHPUnit\Framework\TestCase;
 use Wikitran\Translator;
+use Wikitran\Core\DbInit;
 use Wikitran\Core\Term;
 
-class TranslatorTest extends TestCase
+class SQLiteTest extends TestCase
 {
     public function testTranslate()
     {
-        $translated = ['en' => 'How the Steel Was Tempered'];
-        // $translated1 = ['en' => 'United Nations'];
-
         $translations = [
             'ar' => 'كيف سقينا الفولاذ',
             'bg' => 'Как се каляваше стоманата (роман)',
@@ -31,6 +29,11 @@ class TranslatorTest extends TestCase
             'ru' => 'Как закалялась сталь'
         ];
 
+        $db = new DbInit(null, ['server' => 'sqlite', 'file' => __DIR__ . '/db/cache.sqlite', 'createFile' => true]);
+        $db->clear();
+        $db->run();
+        $db->run();             // test idempotency
+
         $tr = $this->getMockBuilder(Translator::class)
             ->setMethods(['getTerm'])
             ->getMock();
@@ -38,7 +41,14 @@ class TranslatorTest extends TestCase
         $tr->method('getTerm')
             ->willReturn(new Term($translations));
 
+        $tr->setConnection($db->getConnection());
+
         $this->assertEquals('web', $tr->getMethod());
-        $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
+        $tr->setConfig(['method' => 'mixed']);
+        $this->assertEquals($translations, $tr->translate('как закалялась сталь', 'ru'));
+
+        $tr->setConfig(['method' => 'db']);
+        $this->assertEquals('db', $tr->getMethod());
+        $this->assertEquals($translations, $tr->translate('как закалялась сталь', 'ru'));
     }
 }

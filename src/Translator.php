@@ -95,6 +95,11 @@ class Translator
         return false;
     }
 
+    public function setConnection(\PDO $pdo)
+    {
+        $this->db->setConnection($pdo);
+    }
+
     public function setConfig(array $config)
     {
         if (! $this->db->connected()) {
