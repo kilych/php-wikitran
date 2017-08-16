@@ -110,7 +110,8 @@ class Translator
 
         foreach ($config as $key => $value) {
             switch ($key) {
-                case 'viaWeb': case 'viaDb':
+                case 'viaWeb':
+                case 'viaDb':
                     if (! is_bool($value)) {
                         throw new \Exception("For key $key boolean expected but $value given");
                     }
