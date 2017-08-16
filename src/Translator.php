@@ -16,7 +16,6 @@ class Translator
         'viaDb' => true
     ];
     protected $db;
-
     protected static $langs = [];
 
     public function __construct($config = [], $pdo = null)
@@ -92,9 +91,9 @@ class Translator
         return false;
     }
 
-    public function setConnection(\PDO $pdo)
+    public function getDb()
     {
-        $this->db->setConnection($pdo);
+        return $this->db;
     }
 
     public function getConfig()
