@@ -38,7 +38,8 @@ class TranslatorTest extends TestCase
         $tr->method('getTerm')
             ->willReturn(new Term($translations));
 
-        $this->assertEquals('web', $tr->getMethod());
+        $this->assertEquals(true, $tr->getConfig()['viaWeb']);
+        $this->assertEquals(false, $tr->getConfig()['viaDb']);
         $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
     }
 }

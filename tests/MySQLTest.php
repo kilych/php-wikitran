@@ -43,12 +43,14 @@ class MySQLTest extends TestCase
 
         $tr->setConnection($db->getConnection());
 
-        $this->assertEquals('web', $tr->getMethod());
-        $tr->setConfig(['method' => 'mixed']);
+        $this->assertEquals(true, $tr->getConfig()['viaWeb']);
+        $this->assertEquals(false, $tr->getConfig()['viaDb']);
+        $tr->setConfig(['viaWeb' => true, 'viaDb' => true]);
         $this->assertEquals($translations, $tr->translate('как закалялась сталь', 'ru'));
 
-        $tr->setConfig(['method' => 'db']);
-        $this->assertEquals('db', $tr->getMethod());
+        $tr->setConfig(['viaWeb' => false, 'viaDb' => true]);
+        $this->assertEquals(false, $tr->getConfig()['viaWeb']);
+        $this->assertEquals(true, $tr->getConfig()['viaDb']);
         $this->assertEquals($translations, $tr->translate('как закалялась сталь', 'ru'));
     }
 }

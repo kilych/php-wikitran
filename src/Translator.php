@@ -9,16 +9,13 @@ use function Wikitran\Core\parse_page as parse;
 class Translator
 {
     protected $config = [
-        'method' => 'mixed',
         'source' => 'en',
         'dests' => ['all'],
-        'db' => []
+        'db' => [],
+        'viaWeb' => true,
+        'viaDb' => true
     ];
     protected $db;
-
-    public const METHODS = ['web', 'db', 'mixed'];
-    public const DB_METHODS = ['db', 'mixed'];
-    public const WEB_METHODS = ['web', 'mixed'];
 
     protected static $langs = [];
 
@@ -63,11 +60,11 @@ class Translator
             $dests = ['all'];
         }
 
-        if ($this->isDbMethod()
+        if ($this->config['viaDb']
             && false !== $term = $this->db->getTerm($queries, $source)) {
-        } elseif ($this->isWebMethod()) {
+        } elseif ($this->config['viaWeb']) {
             $term = $this->getTerm($queries, $source);
-            if ($this->isDbMethod()) {
+            if ($this->config['viaDb']) {
                 $this->db->save($term);
             }
         }
@@ -100,44 +97,47 @@ class Translator
         $this->db->setConnection($pdo);
     }
 
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
     public function setConfig(array $config)
     {
         if (! $this->db->connected()) {
-            $config['method'] = 'web';
+            $config['viaDb'] = false;
             error_log(__METHOD__ . ' No db connection. Translation method is "web"');
-        } elseif (array_key_exists('method', $config)
-                  && !in_array($config['method'], self::METHODS)) {
-            error_log(__METHOD__ . "Unexpected method: {$config['method']}");
-            unset($config['method']);
         }
 
-        if (array_key_exists('source', $config)
-            && !self::isLang($config['source'], true)) {
-            unset($config['source']);
-        }
-
-        if (array_key_exists('dests', $config) && is_array($config['dests'])) {
-            $config['dests'] = array_filter($config['dests'], function ($lang) {
-                return self::isLang($lang, true);
-            });
+        foreach ($config as $key => $value) {
+            switch ($key) {
+                case 'viaWeb': case 'viaDb':
+                    if (! is_bool($value)) {
+                        throw new \Exception("For key $key boolean expected but $value given");
+                    }
+                    break;
+                case 'source':
+                    if (! self::isLang($value)) {
+                        throw new \Exception("Unknown source language code $value");
+                    }
+                    break;
+                case 'dests':
+                    if (is_array($value)) {
+                        foreach ($value as $langCode) {
+                            if (! self::isLang($langCode)) {
+                                throw new \Exception("Unknown destination language code $langCode");
+                            }
+                        }
+                    } else {
+                        throw new \Exception("Array of language codes expected but $value given");
+                    }
+                    break;
+                default:
+                    unset($config[$key]);
+            }
         }
 
         $this->config = array_merge($this->config, $config);
-    }
-
-    public function getMethod()
-    {
-        return $this->config['method'];
-    }
-
-    public function isDbMethod()
-    {
-        return in_array($this->config['method'], self::DB_METHODS);
-    }
-
-    public function isWebMethod()
-    {
-        return in_array($this->config['method'], self::WEB_METHODS);
     }
 
     public static function isLang($langCode, $say = false)
