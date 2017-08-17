@@ -2,7 +2,7 @@
 
 namespace Wikitran;
 
-use Wikitran\Core\DbTranslator;
+use Wikitran\Core\DbMapper;
 use function Wikitran\Core\load_page as load;
 use function Wikitran\Core\parse_page as parse;
 
@@ -22,7 +22,7 @@ class Translator
     {
         $dbconfig = (array_key_exists('db', $config)) ?
                   $config['db'] : $this->config['db'];
-        $this->db = new DbTranslator($pdo, $dbconfig);
+        $this->db = new DbMapper($pdo, $dbconfig);
         $this->setConfig($config);
     }
 

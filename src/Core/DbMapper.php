@@ -5,7 +5,7 @@ namespace Wikitran\Core;
 use Wikitran\Core\Db;
 use Wikitran\Core\Term;
 
-class DbTranslator extends Db
+class DbMapper extends Db
 {
     public function getTerm(array $queries, string $source)
     {
