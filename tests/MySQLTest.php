@@ -44,8 +44,7 @@ class MySQLTest extends TestCase
         $tr->getDb()->setConnection($db->getConnection());
 
         $this->assertEquals(true, $tr->getConfig()['viaWeb']);
-        $this->assertEquals(false, $tr->getConfig()['viaDb']);
-        $tr->setConfig(['viaWeb' => true, 'viaDb' => true]);
+        $this->assertEquals(true, $tr->getConfig()['viaDb']);
         $this->assertEquals($translations, $tr->translate('как закалялась сталь', 'ru'));
 
         $tr->setConfig(['viaWeb' => false, 'viaDb' => true]);
