@@ -63,7 +63,7 @@ class Translator
             && false !== $term = $this->db->getTerm($queries, $source)) {
         } elseif ($this->config['viaWeb']) {
             $term = $this->getTerm($queries, $source);
-            if ($this->config['viaDb']) {
+            if ($this->config['viaDb'] && $term) {
                 $this->db->save($term);
             }
         }
@@ -71,14 +71,14 @@ class Translator
         return (isset($term) && $term) ? $term->translate($dests) : false;
     }
 
-    public function translateSet(string $source, string $dest, array $queries)
+    public function translateSet(array $queries, string ...$langs)
     {
-        return array_filter(array_map(
-            function ($query) use ($source, $dest) {
-                return $this->translate($source, $dest, $query);
+        return array_map(
+            function ($query) use ($langs) {
+                return $this->translate($query, ...$langs);
             },
             $queries
-        ));
+        );
     }
 
     public function getTerm(array $queries, $source)

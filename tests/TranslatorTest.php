@@ -8,40 +8,48 @@ use Wikitran\Core\Term;
 
 class TranslatorTest extends TestCase
 {
-    public function testTranslate()
+    protected $terms;
+    protected $translator;
+
+    protected function setUp()
     {
-        $translated = ['en' => 'How the Steel Was Tempered'];
-        // $translated1 = ['en' => 'United Nations'];
+        require_once __DIR__ . '/terms.php';
 
-        $translations = [
-            'ar' => 'كيف سقينا الفولاذ',
-            'bg' => 'Как се каляваше стоманата (роман)',
-            'de' => 'Wie der Stahl gehärtet wurde',
-            'en' => 'How the Steel Was Tempered',
-            'hr' => 'Kako se kalio čelik',
-            'mk' => 'Како се калеше челикот',
-            'pa' => 'ਸੂਰਮੇ ਦੀ ਸਿਰਜਣਾ',
-            'pl' => 'Jak hartowała się stal (powieść)',
-            'sh' => 'Kako se kalio čelik',
-            'sr' => 'Како се калио челик',
-            'ta' => 'வீரம் விளைந்தது (நூல்)',
-            'tr' => 'Ve Çeliğe Su Verildi',
-            'vi' => 'Thép đã tôi thế đấy !',
-            'zh' => '钢铁是怎样炼成的',
-            'ru' => 'Как закалялась сталь'
-        ];
+        $this->terms = TERMS;
 
-        $tr = $this->getMockBuilder(Translator::class)
+        $this->translator = $this->getMockBuilder(Translator::class)
             ->setMethods(['getTerm'])
             ->getMock();
+    }
 
-        $tr->method('getTerm')
-            ->willReturn(new Term($translations));
+    public function testTranslate()
+    {
+        $this->translator->method('getTerm')
+            ->willReturn(new Term($this->terms[0]));
 
-        $this->assertEquals(true, $tr->getConfig()['viaWeb']);
-        $this->assertEquals(true, $tr->getConfig()['viaDb']);
-        $tr->setConfig(['viaDb' => false]);
-        $this->assertEquals(false, $tr->getConfig()['viaDb']);
-        $this->assertEquals($translated, $tr->translate('как закалялась сталь', 'ru', 'en'));
+        $this->assertEquals(true, $this->translator->getConfig()['viaWeb']);
+        $this->assertEquals(false, $this->translator->getConfig()['viaDb']);
+
+        $this->assertEquals($this->terms[0], $this->translator->translate('как закалялась сталь', 'ru'));
+    }
+
+    public function testTranslateSet()
+    {
+        $this->translator
+            ->expects($this->exactly(2))
+            ->method('getTerm')
+            ->will($this->onConsecutiveCalls(
+                new Term($this->terms[0]),
+                new Term($this->terms[1])
+            ));
+
+        $this->assertEquals(false, $this->translator->getConfig()['viaDb']);
+
+        $this->assertEquals(
+            [false, $this->terms[0], false, $this->terms[1]],
+            $this->translator->translateSet(
+                ['', 'как закалялась сталь', '', 'возведение в степень'],
+                'ru'
+            ));
     }
 }
