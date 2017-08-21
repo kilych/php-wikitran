@@ -91,9 +91,10 @@ class Translator
         return false;
     }
 
-    public function getDb()
+    public function setConnection(\PDO $pdo)
     {
-        return $this->db;
+        $this->db->setConnection($pdo);
+        $this->setConfig(['viaDb' => true]);
     }
 
     public function getConfig()
@@ -105,7 +106,6 @@ class Translator
     {
         if (! $this->db->connected()) {
             $config['viaDb'] = false;
-            error_log(__METHOD__ . ' No db connection. Translation method is "web"');
         }
 
         foreach ($config as $key => $value) {

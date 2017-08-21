@@ -41,17 +41,14 @@ class SQLiteTest extends TestCase
         $tr->method('getTerm')
             ->willReturn(new Term($translations));
 
-        $tr->getDb()->setConnection($db->getConnection());
+        $tr->setConnection($db->getConnection());
 
         $this->assertEquals(true, $tr->getConfig()['viaWeb']);
-        $this->assertEquals(false, $tr->getConfig()['viaDb']);
-
-        $tr->setConfig(['viaDb' => true]);
-
         $this->assertEquals(true, $tr->getConfig()['viaDb']);
         $this->assertEquals($translations, $tr->translate('как закалялась сталь', 'ru'));
 
-        $tr->setConfig(['viaWeb' => false, 'viaDb' => true]);
+        $tr->setConfig(['viaWeb' => false]);
+
         $this->assertEquals(false, $tr->getConfig()['viaWeb']);
         $this->assertEquals(true, $tr->getConfig()['viaDb']);
         $this->assertEquals($translations, $tr->translate('как закалялась сталь', 'ru'));
