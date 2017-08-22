@@ -1,0 +1,66 @@
+#!/usr/bin/env php
+
+<?php
+
+use Wikitran\Translator;
+
+$autoloadRoot = __DIR__ . '/../vendor/autoload.php';
+$autoloadDependency = __DIR__ . '/../../../autoload.php';
+
+if (is_file($autoloadRoot)) {
+    require $autoloadRoot;
+} elseif (is_file($autoloadDependency)) {
+    require $autoloadDependency;
+} else {
+    error_log('Autoload script not found.');
+    exit(1);
+}
+
+$options = getopt(
+    '',
+    [
+        // 'query:',
+        // 'langName',
+        'migrate',
+        'server:',
+        'file:',
+        'createFile',
+        'host:',
+        'port:',
+        'db:',
+        'charset:',
+        'user:',
+        'password:'
+    ]
+);
+
+if (array_key_exists('migrate', $options)) {
+    if (array_key_exists('createFile', $options)) {
+        // cause options that don't require value set to false
+        $options['createFile'] = true;
+    }
+    require dirname(__DIR__) . '/src/migrate.php';
+} else {
+    $i = 1;
+    $langs = [];
+    while ($i < $argc && Translator::isLang($argv[$i])) {
+        $langs[] = $argv[$i];
+        $i++;
+    }
+    $queryArr = array_slice($argv, $i);
+    $query = implode(' ', $queryArr);
+    $tr = new Translator();
+    $translations = $tr->translate($query, ...$langs);
+    if ($translations) {
+        print_array($translations);
+    } else {
+        print("Translation not found\n");
+    }
+}
+
+function print_array($arr)
+{
+    foreach ($arr as $code => $translation) {
+        print("$code => $translation\n");
+    }
+}
