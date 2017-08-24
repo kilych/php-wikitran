@@ -181,37 +181,47 @@ class Translator
             ' ',
             $query
         ))));
+
         $encoding = mb_detect_encoding($q);
-        // http://ru.stackoverflow.com/a/72543 :
-        $mb_ucfirst = function ($q) use ($encoding) {
-            $str = mb_convert_case(
-                substr($q, 0, 2),
-                MB_CASE_TITLE,
-                $encoding
-            );
-            $q[0] = $str[0];
-            $q[1] = $str[1];    // two bites for one char
-            return $q;
-        };
+
         if ($encoding == 'ASCII') {
-            return ucfirst(strtolower($q));
+            return strtolower($q);
         } else {
             // expects known (mb_list_encodings) encoding:
-            return $mb_ucfirst(mb_convert_case($q, MB_CASE_LOWER, $encoding));
+            return mb_convert_case($q, MB_CASE_LOWER, $encoding);
         }
     }
 
     // see http://stackoverflow.com/a/17817754
     protected static function varyQuery(string $query)
     {
+        $encoding = mb_detect_encoding($query);
+
+        // http://ru.stackoverflow.com/a/72543 :
+        $mb_ucfirst = function ($q) use ($encoding) {
+            // two, three or four bytes for one char
+            $bytes = ($len = strlen($q) >= 4) ? 4 : $len;
+            $str = mb_convert_case(
+                substr($q, 0, $bytes),
+                MB_CASE_TITLE,
+                $encoding
+            );
+            for ($i = 0; $i < $bytes; $i++) {
+                $q[$i] = $str[$i];
+            }
+            return $q;
+        };
+
         if ('ASCII' === $encoding = mb_detect_encoding($query)) {
-            return [$query,
+            return [ucfirst($query),
                     ucwords($query, ' '),
+                    $query,
                     strtoupper($query)];
         } else {
             // expects known (mb_list_encodings) encoding
-            return [$query,
+            return [$mb_ucfirst($query),
                     mb_convert_case($query, MB_CASE_TITLE, $encoding),
+                    $query,
                     mb_convert_case($query, MB_CASE_UPPER, $encoding)];
         }
     }

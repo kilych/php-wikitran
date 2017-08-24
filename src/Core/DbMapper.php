@@ -26,13 +26,13 @@ class DbMapper extends Db
             // SQL query for translation:
             $st = $this->pdo->prepare(
                 'SELECT DISTINCT dest.trans_lang, dest.trans FROM translation dest INNER JOIN'
-                . ' (SELECT * FROM translation WHERE trans_lang = ? AND trans = ?) `source`'
+                . ' (SELECT * FROM translation WHERE trans_lang = ? AND (trans = ? OR LOWER(trans) = ?)) `source`'
                 . ' ON dest.term_id = source.term_id'
                 . ' ORDER BY dest.term_id;'
             );
 
-            foreach ($queries as $try) {
-                if ($st->execute([$source, $try]) && $rows = $st->fetchAll()) {
+            foreach ($queries as $guess) {
+                if ($st->execute([$source, $guess, $guess]) && $rows = $st->fetchAll()) {
                     $res = [];
                     foreach ($rows as $row) {
                         $res[$row["trans_lang"]] = $row["trans"];
