@@ -122,14 +122,23 @@ class Translator
                     }
                     break;
                 case 'dests':
-                    if (is_array($value)) {
+                    if (is_array($value) && empty($value)) {
+                        throw new \Exception(
+                            "\"dests\" config option must be non-empty array of language codes but empty array given"
+                        );
+                    } elseif (! is_array($value)) {
+                        throw new \Exception(
+                            "\"dests\" config option must be non-empty array of language codes but $value given"
+                        );
+                    } else {
                         foreach ($value as $langCode) {
-                            if (! self::isLang($langCode)) {
+                            if ($langCode === 'all') {
+                                $config[$key] = ['all'];
+                                break;
+                            } elseif (! self::isLang($langCode)) {
                                 throw new \Exception("Unknown destination language code $langCode");
                             }
                         }
-                    } else {
-                        throw new \Exception("Array of language codes expected but $value given");
                     }
                     break;
                 default:

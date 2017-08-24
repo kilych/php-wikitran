@@ -25,6 +25,26 @@ class TranslatorTest extends MyTestCase
         $this->assertEquals($expectedValue, $this->translator->getConfig()[$key]);
     }
 
+    public function setConfigDataProvider()
+    {
+        return [
+            ['source', 'sco', 'sco'],
+            ['dests', ['pa', 'ta', 'all', 'zh'], ['all']],
+            ['dests', ['pa', 'ta', 'zh'], ['pa', 'ta', 'zh']],
+            ['viaWeb', false, false],
+            ['viaDb', true, false] // cause db connection is not set
+        ];
+    }
+
+    /**
+     * @dataProvider setConfigDataProvider
+     */
+    public function testSetConfig($key, $value, $expectedValue)
+    {
+        $this->translator->setConfig([$key => $value]);
+        $this->assertEquals($expectedValue, $this->translator->getConfig()[$key]);
+    }
+
     public function translateDataProvider()
     {
         $this->setUp();
