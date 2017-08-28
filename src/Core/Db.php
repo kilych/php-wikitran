@@ -59,11 +59,7 @@ class Db
     public static function connectBuiltIn()
     {
         $file = self::getBuiltInFilePath();
-        if (is_file($file)) {
-            return self::connectSQLite(['file' => $file]);
-        }
-        error_log(__METHOD__ . " Db file not found at $file");
-        return false;
+        return self::connectSQLite(['file' => $file]);
     }
 
     protected static function getBuiltInFilePath()
@@ -98,11 +94,8 @@ class Db
         if ((is_dir($dir) || mkdir($dir)) && touch($file)) {
             error_log(__METHOD__ . " at $file");
             return $file;
-        } else {
-            error_log(__METHOD__ . " failed at $file");
-            return false;
         }
-        error_log(__METHOD__ . " Db file not found and not created at $file");
+        error_log(__METHOD__ . " failed at $file");
         return false;
     }
 

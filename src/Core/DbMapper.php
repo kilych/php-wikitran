@@ -10,19 +10,6 @@ class DbMapper extends Db
     public function getTerm(array $queries, string $source)
     {
         if ($this->connected()) {
-            // Not necessary
-            // It was a bug in SQLite 3.19
-            // https://sqlite.org/releaselog/3_20_0.html
-            // https://sqlite.org/src/info/de3403bf5ae
-            // $server = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
-            // if ($server === 'sqlite') {
-            //     $prefix = 'dest.';
-            // } elseif ($server === 'mysql') {
-            //     $prefix = '';
-            // } else {
-            //     throw new \Exception("Unsupported SQL server: $server. Use SQLite or MySQL instead.");
-            // }
-
             $pre = self::PREFIX;
 
             // SQL query for translation:
