@@ -4,6 +4,8 @@ namespace Wikitran\Core;
 
 class Db
 {
+    const PREFIX = 'wikitran_';
+
     protected $pdo;             // \PDO object
 
     public function __construct($pdo = null, array $dbconfig = [])

@@ -23,10 +23,12 @@ class DbMapper extends Db
             //     throw new \Exception("Unsupported SQL server: $server. Use SQLite or MySQL instead.");
             // }
 
+            $pre = self::PREFIX;
+
             // SQL query for translation:
             $st = $this->pdo->prepare(
-                'SELECT DISTINCT dest.trans_lang, dest.trans FROM translation dest INNER JOIN'
-                . ' (SELECT * FROM translation WHERE trans_lang = ? AND (trans = ? OR LOWER(trans) = ?)) `source`'
+                "SELECT DISTINCT dest.trans_lang, dest.trans FROM {$pre}translation dest INNER JOIN"
+                . " (SELECT * FROM {$pre}translation WHERE trans_lang = ? AND (trans = ? OR LOWER(trans) = ?)) `source`"
                 . ' ON dest.term_id = source.term_id'
                 . ' ORDER BY dest.term_id;'
             );
@@ -46,13 +48,14 @@ class DbMapper extends Db
 
     public function save($term)
     {
-        $sql = "INSERT INTO translation (term_id, trans, trans_lang, source_id) VALUES (?, ?, ?, 1);";
+        $pre = self::PREFIX;
+        $sql = "INSERT INTO {$pre}translation (term_id, trans, trans_lang, source_id) VALUES (?, ?, ?, 1);";
         $rows = 0;
         if ($this->connected()) {
             try {
                 $st = $this->pdo->prepare($sql);
                 $this->pdo->beginTransaction();
-                $this->pdo->exec('INSERT INTO term (term_id) VALUES (null);');
+                $this->pdo->exec("INSERT INTO {$pre}term (term_id) VALUES (null);");
                 $id = $this->pdo->lastInsertId();
                 foreach ($term->getTranslations() as $key => $value) {
                     $execution = $st->execute([$id, $value, $key]);

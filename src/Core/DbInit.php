@@ -37,12 +37,13 @@ class DbInit extends Db
     public function clear()
     {
         error_log(__METHOD__);
+        $pre = self::PREFIX;
         $tables = ['term_relation', 'translation', 'term', 'term_source', 'lang_name', 'lang'];
         if ($this->connected()) {
             $pdo = $this->pdo;
             try {
                 foreach ($tables as $table) {
-                    $pdo->exec("DROP TABLE IF EXISTS $table;");
+                    $pdo->exec("DROP TABLE IF EXISTS $pre$table;");
                 }
             } catch (\Exception $e) {
                 error_log($e->getMessage());
@@ -74,12 +75,13 @@ class DbInit extends Db
     protected static function addValues(\PDO $pdo)
     {
         $rows = 0;
-        $sqlCheckSource = "SELECT * FROM term_source WHERE source_id = 1 AND source = 'Wikipedia';";
-        $sqlAddSource = "INSERT INTO term_source (source) VALUES ('Wikipedia');";
+        $pre = self::PREFIX;
+        $sqlCheckSource = "SELECT * FROM {$pre}term_source WHERE source_id = 1 AND source = 'Wikipedia';";
+        $sqlAddSource = "INSERT INTO  {$pre}term_source (source) VALUES ('Wikipedia');";
         // lang_code is foreign key in lang_name table
-        $sqlCheckCode = 'SELECT * FROM lang_name WHERE lang_code = ?;';
-        $sqlAddCode = 'INSERT INTO lang (lang_code) VALUES (?);';
-        $sqlAddLang = "INSERT INTO lang_name (lang_code, name, name_lang) VALUES (?, ?, 'en');";
+        $sqlCheckCode = "SELECT * FROM {$pre}lang_name WHERE lang_code = ?;";
+        $sqlAddCode = "INSERT INTO {$pre}lang (lang_code) VALUES (?);";
+        $sqlAddLang = "INSERT INTO {$pre}lang_name (lang_code, name, name_lang) VALUES (?, ?, 'en');";
 
         $stCheckSource = $pdo->prepare($sqlCheckSource);
         $stAddSource = $pdo->prepare($sqlAddSource);
