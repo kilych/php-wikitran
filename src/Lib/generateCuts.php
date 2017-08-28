@@ -2,9 +2,9 @@
 
 namespace Wikitran\Lib;
 
-function generate_cuts(string $init, string $begin, string $end, string $start, string $stop = '')
+function generateCuts(string $init, string $begin, string $end, string $start, string $stop = '')
 {
-    if (false !== $cut = cut_string($init, $begin, $end)) {
+    if (false !== $cut = cutString($init, $begin, $end)) {
         return generate($cut[1], $start, $stop);
     }
     return [];
@@ -13,7 +13,7 @@ function generate_cuts(string $init, string $begin, string $end, string $start, 
 // cut string from start to stop excluding stop
 // if $init = 'abcabc', $start = $stop = 'abc', cuts 'abc'
 // if $init = 'abc', $start = $stop = 'abc', cuts nothing
-function cut_string(string $init, string $start, string $stop = '')
+function cutString(string $init, string $start, string $stop = '')
 {
     if ((0 === strlen($init))
         || (0 === $start_len = strlen($start))) {
@@ -37,10 +37,10 @@ function cut_string(string $init, string $start, string $stop = '')
 // returns generator of cuts from start to stop excluding stop
 function generate(string $init, string $start, string $stop = '')
 {
-    if (false === cut_string($init, $start, $stop)) {
+    if (false === cutString($init, $start, $stop)) {
         return [];
     }
-    while (false !== $res = cut_string($init, $start, $stop)) {
+    while (false !== $res = cutString($init, $start, $stop)) {
         list($init, $cut) = $res;
         yield $cut;
     }

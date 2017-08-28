@@ -3,8 +3,8 @@
 namespace Wikitran;
 
 use Wikitran\Core\DbMapper;
-use function Wikitran\Core\load_page as load;
-use function Wikitran\Core\parse_page as parse;
+use function Wikitran\Core\loadPage as load;
+use function Wikitran\Core\parsePage as parse;
 
 class Translator
 {

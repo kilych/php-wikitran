@@ -3,7 +3,7 @@
 namespace Wikitran;
 
 use PHPUnit\Framework\TestCase;
-use function Wikitran\Lib\generate_cuts as generate;
+use function Wikitran\Lib\generateCuts as generate;
 
 class GenerateCutsTest extends TestCase
 {
@@ -14,13 +14,13 @@ class GenerateCutsTest extends TestCase
         $g2 = generate($s, 'begin', 'end', 'abc', 'a');
         $g3 = generate($s, 'begin', 'end', 'b');
 
-        $this->assertTrue(equals_array_or_generator(['abmiddle', 'ab'], $g1));
-        $this->assertTrue(equals_array_or_generator([], $g2));
-        $this->assertTrue(equals_array_or_generator(['begina', 'bmiddleca'], $g3));
+        $this->assertTrue(equalsArrayOrGenerator(['abmiddle', 'ab'], $g1));
+        $this->assertTrue(equalsArrayOrGenerator([], $g2));
+        $this->assertTrue(equalsArrayOrGenerator(['begina', 'bmiddleca'], $g3));
     }
 }
 
-function equals_array_or_generator($expected, $given)
+function equalsArrayOrGenerator($expected, $given)
 {
     foreach ($given as $item) {
         if (empty($expected) || ($item !== array_shift($expected))) {
