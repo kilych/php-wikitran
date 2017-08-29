@@ -19,23 +19,23 @@ class Db
 
     public function connect(array $config = [])
     {
-        if (empty($config)) {
-            $this->pdo = self::connectBuiltIn();
-        } elseif (array_key_exists('server', $config)
-                  && $config['server'] === 'sqlite') {
-            if (array_key_exists('file', $config)) {
+        if (key_exists('server', $config) && $config['server'] === 'sqlite') {
+            if (key_exists('file', $config)) {
                 $this->pdo = self::connectSQLite($config);
             } else {
                 throw new Exception('Should specify db file to connect SQLite');
             }
-        } elseif (array_key_exists('server', $config)
+        } elseif (key_exists('server', $config)
                   && $config['server'] === 'mysql') {
-            if (array_key_exists('db', $config)
-                && array_key_exists('user', $config)) {
+            if (key_exists('db', $config) && key_exists('user', $config)) {
                 $this->pdo = self::connectMySQL($config);
             } else {
                 throw new Exception('Should specify at least db and user to connect MySQL');
             }
+        } elseif (key_exists('createFile', $config)) {
+            $this->pdo = self::connectBuiltIn($config['createFile']);
+        } elseif (empty($config)) {
+            $this->pdo = self::connectBuiltIn();
         } else {
             error_log(__METHOD__ . ' Db connection is not set');
         }
@@ -56,10 +56,10 @@ class Db
         $this->pdo = $pdo;
     }
 
-    public static function connectBuiltIn()
+    public static function connectBuiltIn($createFile = false)
     {
         $file = self::getBuiltInFilePath();
-        return self::connectSQLite(['file' => $file]);
+        return self::connectSQLite(['file' => $file, 'createFile' => $createFile]);
     }
 
     protected static function getBuiltInFilePath()
