@@ -34,8 +34,8 @@ $options = getopt(
     ]
 );
 
-if (array_key_exists('migrate', $options)) {
-    if (array_key_exists('createFile', $options)) {
+if (key_exists('migrate', $options)) {
+    if (key_exists('createFile', $options)) {
         // cause options that don't require value set to false
         $options['createFile'] = true;
     }

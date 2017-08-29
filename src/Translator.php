@@ -20,7 +20,7 @@ class Translator
 
     public function __construct($config = [], $pdo = null)
     {
-        $dbconfig = (array_key_exists('db', $config)) ?
+        $dbconfig = (key_exists('db', $config)) ?
                   $config['db'] : $this->config['db'];
         $this->db = new DbMapper($pdo, $dbconfig);
         $this->setConfig($config);
@@ -151,7 +151,7 @@ class Translator
 
     public static function isLang($langCode, $say = false)
     {
-        $res = array_key_exists($langCode, self::getLangs());
+        $res = key_exists($langCode, self::getLangs());
         if (!$res && $say) {
             error_log(__METHOD__ . " Unknown language code: $langCode");
         }

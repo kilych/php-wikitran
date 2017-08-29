@@ -37,7 +37,7 @@ class Term
         }
         $res = [];
         foreach ($dests as $dest) {
-            if (array_key_exists($dest, $this->translations)) {
+            if (key_exists($dest, $this->translations)) {
                 $res[$dest] = $this->translations[$dest];
             }
         }
