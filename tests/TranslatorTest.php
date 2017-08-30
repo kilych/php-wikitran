@@ -32,7 +32,7 @@ class TranslatorTest extends MyTestCase
             ['dests', ['pa', 'ta', 'all', 'zh'], ['all']],
             ['dests', ['pa', 'ta', 'zh'], ['pa', 'ta', 'zh']],
             ['viaWeb', false, false],
-            ['viaDb', true, false] // cause db connection is not set
+            // ['viaDb', true, false] // cause db connection is not set
         ];
     }
 

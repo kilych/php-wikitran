@@ -19,5 +19,7 @@ class MyTestCase extends TestCase
         $this->translator = $this->getMockBuilder(Translator::class)
                           ->setMethods(['getTerm'])
                           ->getMock();
+
+        $this->translator->setConfig(['viaDb' => false]);
     }
 }
