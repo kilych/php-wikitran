@@ -43,7 +43,7 @@ if (key_exists('migrate', $options)) {
 } else {
     $i = 1;
     $langs = [];
-    while ($i < $argc && Translator::isLang($argv[$i])) {
+    while ($i < $argc && ($argv[$i] === 'all' || Translator::isLang($argv[$i]))) {
         $langs[] = $argv[$i];
         $i++;
     }
