@@ -1,5 +1,6 @@
 {
   "name": "wikitran/wikitran",
+  "version": "0.0.0",
   "type": "library",
   "description": "Translate terms using Wikipedia",
   "keywords": [
