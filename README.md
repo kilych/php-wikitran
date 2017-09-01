@@ -109,11 +109,9 @@ As default (if built-in db exists).
 ``` php
 use Wikitran\Translator;
 
-// 'createFile' is optional. Default value is false.
 $tr = new Translator(['db' => [
     'server' => 'sqlite',
-    'file' => 'path/to/your/db/file',
-    'createFile' => true
+    'file' => 'path/to/your/db/file'
 ]]);
 ```
 
@@ -123,7 +121,11 @@ $tr = new Translator(['db' => [
 use Wikitran\Translator;
 
 // 'password', 'port', etc. are optional
-$tr = new Translator(['db' => ['server' => 'mysql', 'db' => 'db_name', 'user' => 'db_user']]);
+$tr = new Translator(['db' => [
+    'server' => 'mysql',
+    'db' => 'db_name',
+    'user' => 'db_user'
+]]);
 ```
 
 #### PDO instance
