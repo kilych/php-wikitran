@@ -3,8 +3,8 @@
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
 <!-- [![Build Status][ico-travis]][link-travis] -->
-[![Coverage Status][ico-scrutinizer]][link-scrutinizer]
-[![Quality Score][ico-code-quality]][link-code-quality]
+<!-- [![Coverage Status][ico-scrutinizer]][link-scrutinizer] -->
+<!-- [![Quality Score][ico-code-quality]][link-code-quality] -->
 [![Total Downloads][ico-downloads]][link-downloads]
 
 Translate terms using Wikipedia multilingual articles
@@ -23,20 +23,30 @@ Use [Wikipedia language codes](https://meta.wikimedia.org/wiki/List_of_Wikipedia
 First code is for source language. Rest codes are for destination languages.
 First word that isn't valid language code will be interpreted as first word of your query for translation.
 
+#### Examples
+
+##### Specify source and destination languages
+
 ``` bash
 $ wikitran de ar es schreiber
 ```
 Query is "schreiber". Source language is "de" (German). Destination languages are "ar" (Arabic) and "es" (Spanish).
+
+##### Specify destination as all available languages
 
 ``` bash
 $ wikitran de all schreiber
 ```
 Source language is "de" (German). Destination languages are all available languages for the query.
 
+##### Use default destination
+
 ``` bash
 $ wikitran de schreiber
 ```
 Source language is "de" (German). Destination language is not set. Default value is "all".
+
+##### Use default source and destination
 
 ``` bash
 $ wikitran scrivener
@@ -85,7 +95,7 @@ $ wikitran --migrate --server sqlite --file <path/to/your/db/file> [--createFile
 #### MySQL
 
 ``` bash
-$ wikitran --migrate --server mysql --db <database name> --user <db user> [--host <host> --port <port> --password <password> --charset <charset>]
+$ wikitran --migrate --server mysql --db <database name> --user <db user> [--host <host>] [--port <port>] [--password <password>] [--charset <charset>]
 ```
 
 ### Connection
@@ -99,7 +109,12 @@ As default (if built-in db exists).
 ``` php
 use Wikitran\Translator;
 
-$tr = new Translator(['db' => ['server' => 'sqlite', 'file' => 'path/to/your/db/file']]);
+// 'createFile' is optional. Default value is false.
+$tr = new Translator(['db' => [
+    'server' => 'sqlite',
+    'file' => 'path/to/your/db/file',
+    'createFile' => true
+]]);
 ```
 
 #### MySQL
@@ -107,6 +122,7 @@ $tr = new Translator(['db' => ['server' => 'sqlite', 'file' => 'path/to/your/db/
 ``` php
 use Wikitran\Translator;
 
+// 'password', 'port', etc. are optional
 $tr = new Translator(['db' => ['server' => 'mysql', 'db' => 'db_name', 'user' => 'db_user']]);
 ```
 
@@ -134,14 +150,14 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 [ico-version]: https://img.shields.io/packagist/v/wikitran/wikitran.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
 <!-- [ico-travis]: https://img.shields.io/travis/wikitran/wikitran/master.svg?style=flat-square -->
-[ico-scrutinizer]: https://img.shields.io/scrutinizer/coverage/g/wikitran/wikitran.svg?style=flat-square
-[ico-code-quality]: https://img.shields.io/scrutinizer/g/wikitran/wikitran.svg?style=flat-square
+<!-- [ico-scrutinizer]: https://img.shields.io/scrutinizer/coverage/g/wikitran/wikitran.svg?style=flat-square -->
+<!-- [ico-code-quality]: https://img.shields.io/scrutinizer/g/wikitran/wikitran.svg?style=flat-square -->
 [ico-downloads]: https://img.shields.io/packagist/dt/wikitran/wikitran.svg?style=flat-square
 
 [link-packagist]: https://packagist.org/packages/wikitran/wikitran
 <!-- [link-travis]: https://travis-ci.org/wikitran/wikitran -->
-[link-scrutinizer]: https://scrutinizer-ci.com/g/wikitran/wikitran/code-structure
-[link-code-quality]: https://scrutinizer-ci.com/g/wikitran/wikitran
+<!-- [link-scrutinizer]: https://scrutinizer-ci.com/g/wikitran/wikitran/code-structure -->
+<!-- [link-code-quality]: https://scrutinizer-ci.com/g/wikitran/wikitran -->
 [link-downloads]: https://packagist.org/packages/wikitran/wikitran
 [link-author]: https://github.com/kilych
 <!-- [link-contributors]: ../../contributors -->
