@@ -14,7 +14,7 @@ class DbMapper extends Db
 
             // SQL query for translation:
             $st = $this->pdo->prepare(
-                "SELECT DISTINCT dest.trans_lang, dest.trans FROM {$pre}translation dest INNER JOIN"
+                "SELECT dest.trans_lang, dest.trans FROM {$pre}translation dest INNER JOIN"
                 . " (SELECT * FROM {$pre}translation WHERE trans_lang = ? AND (trans = ? OR LOWER(trans) = ?)) `source`"
                 . ' ON dest.term_id = source.term_id'
                 . ' ORDER BY dest.term_id;'
@@ -23,8 +23,10 @@ class DbMapper extends Db
             foreach ($queries as $guess) {
                 if ($st->execute([$source, $guess, $guess]) && $rows = $st->fetchAll()) {
                     $res = [];
+                    // for SQLite 3.11 result columns naming bug
+                    $table = (key_exists('dest.trans', $rows[0])) ? 'dest.' : '';
                     foreach ($rows as $row) {
-                        $res[$row["trans_lang"]] = $row["trans"];
+                        $res[$row["{$table}trans_lang"]] = $row["{$table}trans"];
                     }
                     return new Term($res);
                 }
